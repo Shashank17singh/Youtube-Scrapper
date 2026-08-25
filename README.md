@@ -16,15 +16,15 @@
 
 ##  Overview
 
-A Retrieval-Augmented Generation system built over a YouTube DSA lecture playlist. A student asks a question — the system finds the exact moment in the exact lecture where it was explained, and returns a grounded answer with a clickable timestamp link that seeks the embedded player to that second.
+A Retrieval-Augmented Generation system built over any number of YouTube playlists. A student asks a question across selected playlists — the system finds the exact moment in the exact lecture where it was explained, and returns a grounded answer with a clickable timestamp link that seeks the embedded player to that second.
 
-```
+```text
 "bhai memoization aur tabulation ka difference kahan explain kiya hai?"
 
 → Answer: 3-4 lines, grounded only in what was actually said
 → Sources:
-   [1] DP Lecture 3 — Memoization Deep Dive        @ 12:04   ▸ jump
-   [2] DP Lecture 5 — Tabulation Recipe            @ 04:31   ▸ jump
+  [1] DP Lecture 3 – Memoization Deep Dive      @ 12:04  > jump
+  [2] DP Lecture 5 – Tabulation Recipe          @ 04:31  > jump
 ```
 
 Every generic RAG demo returns a blob of text. This returns *a place in a video*.
