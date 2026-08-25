@@ -27,6 +27,7 @@ class Video:
     video_id: str
     title: str
     duration: int = 0  # seconds
+    playlist_id: str = ""
 
     @property
     def url(self) -> str:
@@ -56,6 +57,7 @@ class Chunk:
     start_sec: int
     end_sec: int
     text: str
+    playlist_id: str = ""
 
     @property
     def point_id(self) -> str:
@@ -83,6 +85,7 @@ class Chunk:
             "start_sec": self.start_sec,
             "end_sec": self.end_sec,
             "text": self.text,
+            "playlist_id": self.playlist_id,
         }
 
     @classmethod
@@ -94,4 +97,5 @@ class Chunk:
             start_sec=int(payload["start_sec"]),
             end_sec=int(payload["end_sec"]),
             text=payload["text"],
+            playlist_id=payload.get("playlist_id", ""),
         )

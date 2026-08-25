@@ -72,6 +72,7 @@ def chunk_segments(
                     # improves retrieval: a chunk from minute 34 usually never
                     # restates which topic it belongs to.
                     text=f"{video.title}\n\n{body}",
+                    playlist_id=video.playlist_id,
                 )
             )
 

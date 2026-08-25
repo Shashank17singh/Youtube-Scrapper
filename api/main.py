@@ -44,6 +44,7 @@ app = FastAPI(title="YT Lecture RAG", version="0.1.0", lifespan=lifespan)
 
 class AskRequest(BaseModel):
     question: str = Field(..., min_length=1, max_length=config.MAX_QUESTION_CHARS)
+    playlist_id: str | None = Field(default=None)
     top_k: int = Field(default=config.TOP_K, ge=1, le=20)
 
 
@@ -80,6 +81,11 @@ def stats():
     info.pop("videos", None)
     return info
 
+@app.get("/playlists")
+def playlists():
+    from ytrag.index import get_playlists
+    return {"playlists": get_playlists()}
+
 
 @app.post("/search")
 def search(payload: AskRequest, request: Request):
@@ -88,14 +94,14 @@ def search(payload: AskRequest, request: Request):
     Rate limiting is deliberately not applied here — this costs nothing beyond
     one embedding and one vector query, so there is no reason to ration it.
     """
-    return search_only(payload.question, top_k=payload.top_k)
+    return search_only(payload.question, top_k=payload.top_k, playlist_id=payload.playlist_id)
 
 
 @app.post("/ask")
 def ask(payload: AskRequest, request: Request):
     _rate_limit(request)
     try:
-        return answer_question(payload.question, top_k=payload.top_k)
+        return answer_question(payload.question, top_k=payload.top_k, playlist_id=payload.playlist_id)
     except RateLimitError as exc:
         # The LLM provider's own quota, not ours. Surfacing this as a 500 tells
         # the student nothing; they need to know it is temporary and whose

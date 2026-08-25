@@ -53,11 +53,13 @@ def list_playlist(playlist_url: str) -> list[Video]:
         info = ydl.extract_info(playlist_url, download=False)
 
     entries = info.get("entries") or [info]
+    playlist_id = info.get("id") or ""
     return [
         Video(
             video_id=e["id"],
             title=e.get("title") or e["id"],
             duration=int(e.get("duration") or 0),
+            playlist_id=playlist_id,
         )
         for e in entries
         if e and e.get("id")

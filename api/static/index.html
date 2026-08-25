@@ -398,6 +398,9 @@
   <section>
     <form id="askForm">
       <div class="search">
+        <select id="playlistSelect" style="background:transparent; color:var(--text); border:none; outline:none; font:inherit; cursor:pointer; min-width:120px;">
+           <option value="">All Playlists</option>
+        </select>
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
           <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
         </svg>
@@ -471,6 +474,18 @@ EXAMPLES.forEach(text => {
   b.onclick = () => { input.value = text; form.requestSubmit(); };
   $("examples").appendChild(b);
 });
+
+// ---------- fetch playlists ----------
+fetch("/playlists").then(r => r.json()).then(data => {
+  const select = $("playlistSelect");
+  (data.playlists || []).forEach(id => {
+    if (!id) return;
+    const opt = document.createElement("option");
+    opt.value = id;
+    opt.textContent = id;
+    select.appendChild(opt);
+  });
+}).catch(() => {});
 
 // ---------- YouTube player ----------
 let player = null;          // created lazily, on the first jump
@@ -573,7 +588,10 @@ form.addEventListener("submit", async (e) => {
     const res = await fetch("/search", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question })
+      body: JSON.stringify({ 
+        question, 
+        playlist_id: $("playlistSelect").value || undefined 
+      })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || `Something went wrong (${res.status})`);
@@ -637,7 +655,10 @@ $("explainBtn").addEventListener("click", async () => {
     const res = await fetch("/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question: lastQuery })
+      body: JSON.stringify({ 
+        question: lastQuery,
+        playlist_id: $("playlistSelect").value || undefined
+      })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || `Error ${res.status}`);

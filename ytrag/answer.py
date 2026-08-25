@@ -136,6 +136,7 @@ def answer(
     question: str,
     top_k: int = TOP_K,
     video_id: str | None = None,
+    playlist_id: str | None = None,
     max_distance: float | None = None,
 ) -> dict:
     """-> {"answer", "citations", "grounded", "retrieved"}"""
@@ -143,7 +144,7 @@ def answer(
     if not question:
         return {"answer": REFUSAL, "citations": [], "grounded": False, "retrieved": 0}
 
-    hits = search(question, top_k=top_k, video_id=video_id, max_distance=max_distance)
+    hits = search(question, top_k=top_k, video_id=video_id, playlist_id=playlist_id, max_distance=max_distance)
 
     # Guard one: nothing survived the distance cutoff, so there is nothing to
     # ground an answer in. Return the refusal and never call the LLM.
@@ -171,14 +172,14 @@ def answer(
     }
 
 
-def retrieve_only(question: str, top_k: int = TOP_K, filtered: bool = False) -> list[tuple[Chunk, float]]:
+def retrieve_only(question: str, top_k: int = TOP_K, filtered: bool = False, playlist_id: str | None = None) -> list[tuple[Chunk, float]]:
     """Retrieval without the LLM — used by evaluate.py and `ytrag search`.
 
     Unfiltered by default: 2.0 is the maximum possible cosine distance, so
     nothing is dropped. Eval wants to see what retrieval actually returned,
     including the results the MAX_DISTANCE cutoff would have thrown away.
     """
-    return search(question, top_k=top_k, max_distance=None if filtered else 2.0)
+    return search(question, top_k=top_k, playlist_id=playlist_id, max_distance=None if filtered else 2.0)
 
 def _is_confident(question: str, hits: list[tuple[Chunk, float]]) -> bool:
     """Is the top result trustworthy enough to present without a caveat?
@@ -197,7 +198,7 @@ def _is_confident(question: str, hits: list[tuple[Chunk, float]]) -> bool:
     return title_overlap(question, chunk.video_title) > 0 or distance <= CONFIDENT_DISTANCE
 
 
-def search_only(question: str, top_k: int = TOP_K, video_id: str | None = None) -> dict:
+def search_only(question: str, top_k: int = TOP_K, video_id: str | None = None, playlist_id: str | None = None) -> dict:
     """Retrieval with no LLM at all — the timestamps, ranked.
 
     This is the main path. The timestamps *are* the product: a student wants
@@ -214,7 +215,7 @@ def search_only(question: str, top_k: int = TOP_K, video_id: str | None = None) 
     if not question:
         return {"results": [], "confident": False, "query": question}
 
-    hits = search(question, top_k=top_k, video_id=video_id)
+    hits = search(question, top_k=top_k, video_id=video_id, playlist_id=playlist_id)
     return {
         "query": question,
         "confident": _is_confident(question, hits),

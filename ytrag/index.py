@@ -121,6 +121,11 @@ def ensure_collection() -> str:
                 field_name="video_id",
                 field_schema=PayloadSchemaType.KEYWORD,
             )
+            client.create_payload_index(
+                collection_name=name,
+                field_name="playlist_id",
+                field_schema=PayloadSchemaType.KEYWORD,
+            )
     return name
 
 
@@ -196,6 +201,31 @@ def indexed_video_ids() -> set[str]:
     return found
 
 
+def get_playlists() -> list[str]:
+    """Return all unique playlist IDs indexed in the collection."""
+    client = get_client()
+    name = collection_name()
+    if not client.collection_exists(name):
+        return []
+
+    playlists: set[str] = set()
+    offset = None
+    while True:
+        points, offset = client.scroll(
+            collection_name=name,
+            limit=1000,
+            offset=offset,
+            with_payload=["playlist_id"],
+            with_vectors=False,
+        )
+        for point in points:
+            if point.payload and point.payload.get("playlist_id"):
+                playlists.add(point.payload["playlist_id"])
+        if offset is None:
+            break
+    return sorted(list(playlists))
+
+
 # Words that carry no topic signal — Hinglish question scaffolding, plus the
 # boilerplate that appears in almost every lecture title.
 _STOP = {
@@ -232,6 +262,7 @@ def search(
     query: str,
     top_k: int = TOP_K,
     video_id: str | None = None,
+    playlist_id: str | None = None,
     max_distance: float | None = None,
 ) -> list[tuple[Chunk, float]]:
     """Return [(chunk, distance)] sorted best-first, already distance-filtered.
@@ -243,11 +274,13 @@ def search(
     client = get_client()
     vector = get_embedder().embed_query(query)
 
-    query_filter = None
+    must_conditions = []
     if video_id:
-        query_filter = Filter(
-            must=[FieldCondition(key="video_id", match=MatchValue(value=video_id))]
-        )
+        must_conditions.append(FieldCondition(key="video_id", match=MatchValue(value=video_id)))
+    if playlist_id:
+        must_conditions.append(FieldCondition(key="playlist_id", match=MatchValue(value=playlist_id)))
+        
+    query_filter = Filter(must=must_conditions) if must_conditions else None
 
     # Over-fetch, then re-rank. The vector search alone is a decent recall
     # filter but a poor judge of which result belongs first.
