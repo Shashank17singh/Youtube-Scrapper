@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Lecture Search</title>
 <meta name="description" content="Ask any DSA question and jump to the exact second it was explained." />
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#127891;</text></svg>" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'></text></svg>" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -419,7 +419,7 @@
 
     <div id="explainWrap" hidden>
       <button class="explain" id="explainBtn" type="button">
-        <span>✨</span> Summarise these in one paragraph
+        <span></span> Summarise these in one paragraph
       </button>
       <div id="answer" hidden></div>
     </div>
@@ -429,7 +429,7 @@
     <div id="playerWrap">
       <div id="playerBox">
         <div class="placeholder">
-          <div class="big">▶</div>
+          <div class="big"></div>
           <div>Click any timestamp and the lecture starts playing here,<br>at that exact second.</div>
         </div>
       </div>
@@ -556,7 +556,7 @@ function jump(videoId, seconds, title, el) {
 function showPlayerError(videoId, seconds, code) {
   const url = `https://www.youtube.com/watch?v=${videoId}&t=${Math.floor(seconds)}s`;
   nowText.innerHTML = `Can't play here (error ${code}). `
-    + `<a href="${url}" target="_blank" rel="noopener" style="color:var(--accent)">Open on YouTube ↗</a>`;
+    + `<a href="${url}" target="_blank" rel="noopener" style="color:var(--accent)">Open on YouTube </a>`;
   nowPlaying.classList.remove("live");
 }
 
@@ -640,13 +640,13 @@ function renderResults(data) {
 
   $("explainWrap").hidden = false;
   $("explainBtn").disabled = false;
-  $("explainBtn").innerHTML = "<span>✨</span> Summarise these in one paragraph";
+  $("explainBtn").innerHTML = "<span></span> Summarise these in one paragraph";
 }
 
 // ---------- optional AI summary ----------
 $("explainBtn").addEventListener("click", async () => {
   const btn = $("explainBtn"), answerEl = $("answer");
-  btn.disabled = true; btn.innerHTML = "<span>✨</span> Writing…";
+  btn.disabled = true; btn.innerHTML = "<span></span> Writing…";
   answerEl.hidden = false;
   answerEl.className = "answer idle shimmer";
   answerEl.innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
@@ -668,7 +668,7 @@ $("explainBtn").addEventListener("click", async () => {
     answerEl.className = "answer refused";
     answerEl.textContent = String(err.message || err);
     btn.disabled = false;
-    btn.innerHTML = "<span>✨</span> Try again";
+    btn.innerHTML = "<span></span> Try again";
   }
 });
 

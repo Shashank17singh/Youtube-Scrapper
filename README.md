@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🎬 YoutubeScrapper — Timestamp-Level RAG over DSA Lectures
+#  YoutubeScrapper — Timestamp-Level RAG over DSA Lectures
 
 **Ask any DSA question in Hinglish or English and get an answer plus a clickable link that jumps to the exact second it was explained in the lecture**
 
@@ -14,7 +14,7 @@
 
 ---
 
-## 📖 Overview
+##  Overview
 
 A Retrieval-Augmented Generation system built over a YouTube DSA lecture playlist. A student asks a question — the system finds the exact moment in the exact lecture where it was explained, and returns a grounded answer with a clickable timestamp link that seeks the embedded player to that second.
 
@@ -31,7 +31,7 @@ Every generic RAG demo returns a blob of text. This returns *a place in a video*
 
 ---
 
-### 🧠 RAG Architecture
+###  RAG Architecture
 
 ```mermaid
 graph TD
@@ -61,22 +61,22 @@ graph TD
     class E,H,J,K logic;
 ```
 
-## ✨ Features
+##  Features
 
 | | |
 |---|---|
-| ⏱️ **Timestamp-Level Retrieval** | Citations link to the exact second in the exact lecture — clicking `[2]` seeks the embedded player in-page |
-| 🔒 **Grounded Answers Only** | Three guards prevent hallucination: distance cutoff, model self-refusal, and citation-presence check |
-| 🌐 **Hinglish + English** | `BAAI/bge-m3` handles code-switched queries natively |
-| ⚡ **Batched Transcription** | `faster-whisper` with batch=8 achieves 8x realtime on a GPU — 3x faster than sequential |
-| ♻️ **Fully Resumable** | Cached transcripts + idempotent upserts mean re-runs skip all completed work |
-| 🛡️ **Fault-Tolerant Ingest** | One failing video logs and continues; network retries with exponential backoff |
-| 🖥️ **Web UI** | Single-page FastAPI app using the YouTube IFrame API for in-page seeks |
-| 📊 **Evaluation Suite** | Golden-set hit-rate evaluation against hand-written retrieval test cases |
+|  **Timestamp-Level Retrieval** | Citations link to the exact second in the exact lecture — clicking `[2]` seeks the embedded player in-page |
+|  **Grounded Answers Only** | Three guards prevent hallucination: distance cutoff, model self-refusal, and citation-presence check |
+|  **Hinglish + English** | `BAAI/bge-m3` handles code-switched queries natively |
+|  **Batched Transcription** | `faster-whisper` with batch=8 achieves 8x realtime on a GPU — 3x faster than sequential |
+|  **Fully Resumable** | Cached transcripts + idempotent upserts mean re-runs skip all completed work |
+|  **Fault-Tolerant Ingest** | One failing video logs and continues; network retries with exponential backoff |
+|  **Web UI** | Single-page FastAPI app using the YouTube IFrame API for in-page seeks |
+|  **Evaluation Suite** | Golden-set hit-rate evaluation against hand-written retrieval test cases |
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Component | Technology |
 |---|---|
@@ -92,7 +92,7 @@ graph TD
 
 ---
 
-## 📂 Project Structure
+##  Project Structure
 
 ```
 YoutubeScrapper/
@@ -126,7 +126,7 @@ Runtime data lives outside the repo in `~/.ytrag/`:
 
 ---
 
-## ⚙️ Setup and Installation
+##  Setup and Installation
 
 ### Prerequisites
 
@@ -181,7 +181,7 @@ Open <http://127.0.0.1:8000>, ask a question, click a timestamp — the lecture 
 
 ---
 
-## 🚀 CLI Reference
+##  CLI Reference
 
 ```bash
 uv run ytrag preflight --playlist "<URL>"  # check all dependencies before a long run
@@ -197,7 +197,7 @@ uv run ytrag serve                                  # web UI on localhost:8000
 
 ---
 
-## ⚙️ Configuration
+##  Configuration
 
 All tunables are env-driven. Defaults live in [`ytrag/config.py`](ytrag/config.py).
 
@@ -214,7 +214,7 @@ All tunables are env-driven. Defaults live in [`ytrag/config.py`](ytrag/config.p
 
 ---
 
-## ⚠️ Known Limitations
+##  Known Limitations
 
 - Transcription requires a decent GPU for the full playlist (~8.5 hours on an RTX GPU). The committed transcripts skip this step for everyone else.
 - `BAAI/bge-m3` is 2.2 GB — swap to `all-MiniLM-L6-v2` for free-tier deployment (`uv run ytrag reindex` after changing the env var).
