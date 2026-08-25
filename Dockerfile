@@ -10,7 +10,7 @@ WORKDIR /app
 ENV UV_COMPILE_BYTECODE=1
 
 # Copy dependency files
-COPY pyproject.toml uv.lock ./
+COPY pyproject.toml ./
 
 # Install dependencies into a virtual environment (.venv)
 # We skip installing the "cuda" extra by default to keep the image small,
