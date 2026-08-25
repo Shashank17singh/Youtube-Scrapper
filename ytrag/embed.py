@@ -42,54 +42,59 @@ class Embedder(Protocol):
     def embed_query(self, text: str) -> list[float]: ...
 
 
-class SentenceTransformerEmbedder:
-    """Local embeddings. Default is bge-m3 (1024-dim, multilingual).
-
-    bge-m3 needs no instruction prefix. Some other models do, and only on the
-    query side — bge-*-en-v1.5 wants "Represent this sentence for searching
-    relevant passages: ". That is what EMBED_QUERY_PREFIX is for. Getting this
-    wrong degrades results silently: no error, just worse answers.
+class GoogleGenAIEmbedder:
+    """Cloud embeddings using Google Gemini (text-embedding-004).
+    
+    This replaces the heavy local sentence-transformers model to keep memory 
+    usage low enough for free cloud deployments (like Render 512MB tier).
     """
 
     def __init__(self, model_name: str = EMBED_MODEL, batch_size: int = EMBED_BATCH):
-        from sentence_transformers import SentenceTransformer
-
+        from google import genai
+        from ytrag.config import GEMINI_API_KEY
+        
+        if not GEMINI_API_KEY:
+            raise ValueError("GEMINI_API_KEY environment variable is missing. It is required for embeddings.")
+            
         self.name = model_name
         self.batch_size = batch_size
-        with _quiet_load():
-            self.model = SentenceTransformer(model_name)
-        # Renamed in sentence-transformers 6; keep working on older pins too.
-        get_dim = getattr(self.model, "get_embedding_dimension", None) or (
-            self.model.get_sentence_embedding_dimension
-        )
-        self.dim = int(get_dim())
+        self.client = genai.Client(api_key=GEMINI_API_KEY)
+        # text-embedding-004 output dimension
+        self.dim = 768
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
         if not texts:
             return []
-        vectors = self.model.encode(
-            texts,
-            batch_size=self.batch_size,
-            normalize_embeddings=True,
-            show_progress_bar=False,
-        )
-        return [v.tolist() for v in vectors]
+            
+        vectors = []
+        # Gemini allows batching, but we chunk it according to EMBED_BATCH
+        for i in range(0, len(texts), self.batch_size):
+            batch = texts[i:i + self.batch_size]
+            response = self.client.models.embed_content(
+                model=self.name,
+                contents=batch,
+                config={"task_type": "RETRIEVAL_DOCUMENT"}
+            )
+            for emb in response.embeddings:
+                vectors.append(emb.values)
+                
+        return vectors
 
     def embed_query(self, text: str) -> list[float]:
-        vector = self.model.encode(
-            EMBED_QUERY_PREFIX + text,
-            normalize_embeddings=True,
-            show_progress_bar=False,
+        response = self.client.models.embed_content(
+            model=self.name,
+            contents=text,
+            config={"task_type": "RETRIEVAL_QUERY"}
         )
-        return vector.tolist()
+        return response.embeddings[0].values
 
 
 _EMBEDDER: Embedder | None = None
 
 
 def get_embedder() -> Embedder:
-    """Load the embedder once per process — the model is 2.2GB."""
+    """Load the embedder once per process."""
     global _EMBEDDER
     if _EMBEDDER is None:
-        _EMBEDDER = SentenceTransformerEmbedder()
+        _EMBEDDER = GoogleGenAIEmbedder()
     return _EMBEDDER
