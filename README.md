@@ -19,7 +19,7 @@
 A Retrieval-Augmented Generation system built over any number of YouTube playlists. A student asks a question across selected playlists — the system finds the exact moment in the exact lecture where it was explained, and returns a grounded answer with a clickable timestamp link that seeks the embedded player to that second.
 
 ```text
-"bhai memoization aur tabulation ka difference kahan explain kiya hai?"
+"What is the difference between memoization and tabulation?"
 
 → Answer: 3-4 lines, grounded only in what was actually said
 → Sources:
