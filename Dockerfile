@@ -16,7 +16,7 @@ COPY pyproject.toml uv.lock ./
 # We skip installing the "cuda" extra by default to keep the image small,
 # since transcription (faster-whisper) usually runs locally or on a separate GPU server,
 # and HuggingFace Spaces free tier only provides CPU.
-RUN uv sync --frozen --no-dev
+RUN uv sync --no-dev --no-cache
 
 # Copy the rest of the application
 COPY . ./
