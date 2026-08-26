@@ -23,10 +23,16 @@ os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
 # walking up from this file so `ytrag` works from any directory.
 load_dotenv(find_dotenv(usecwd=True))
 
-_REPO_ROOT = Path(__file__).resolve().parents[3]
-_ROOT_ENV = _REPO_ROOT / ".env"
-if _ROOT_ENV.exists():
-    load_dotenv(_ROOT_ENV, override=False)
+# Walk up from this file to find the repo root (contains .env).
+# In Docker: /app/ytrag/config.py -> parents[1] = /app
+# Guard with try/except so a bad index never crashes the import.
+try:
+    _REPO_ROOT = Path(__file__).resolve().parent.parent
+    _ROOT_ENV = _REPO_ROOT / ".env"
+    if _ROOT_ENV.exists():
+        load_dotenv(_ROOT_ENV, override=False)
+except Exception:
+    pass
 
 
 # ------------------------------------------------------------------
