@@ -10,7 +10,7 @@ import re
 import sys
 from typing import Protocol
 
-from ytrag.config import EMBED_BATCH, EMBED_MODEL, EMBED_QUERY_PREFIX
+from ytrag.config import EMBED_BATCH, EMBED_MODEL
 
 # Noise the model loader prints from a compiled extension, which no env var
 # turns off. Filtered rather than suppressed wholesale: anything that is not
