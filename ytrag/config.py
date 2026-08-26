@@ -54,14 +54,14 @@ for _d in (AUDIO_DIR, TRANSCRIPT_DIR):
 # ------------------------------------------------------------------
 # Transcription
 # ------------------------------------------------------------------
-# faster-whisper (CTranslate2), not mlx-whisper — this is a Windows/CUDA box.
+# faster-whisper (CTranslate2), not mlx-whisper - this is a Windows/CUDA box.
 WHISPER_MODEL = os.getenv("YTRAG_WHISPER_MODEL", "large-v3")
 WHISPER_DEVICE = os.getenv("YTRAG_WHISPER_DEVICE", "auto")  # auto | cuda | cpu
 WHISPER_COMPUTE = os.getenv("YTRAG_WHISPER_COMPUTE", "")  # blank = pick per device
-WHISPER_LANG = os.getenv("YTRAG_WHISPER_LANG", "en")  # see README §6.0 — TEST THIS FIRST
+WHISPER_LANG = os.getenv("YTRAG_WHISPER_LANG", "en")  # see README §6.0 - TEST THIS FIRST
 WHISPER_BEAM = int(os.getenv("YTRAG_WHISPER_BEAM", 5))
 # Batched inference transcribes several VAD-detected speech regions at once.
-# Same model, same weights, several times the throughput — the difference
+# Same model, same weights, several times the throughput - the difference
 # between an overnight run and an afternoon one on 68 hours of lecture.
 # Set to 0 to fall back to the sequential path.
 WHISPER_BATCH = int(os.getenv("YTRAG_WHISPER_BATCH", 8))
@@ -101,13 +101,13 @@ DOWNLOAD_SLEEP_MAX = float(os.getenv("YTRAG_DOWNLOAD_SLEEP_MAX", 6))
 # YTRAG_COOKIES_FROM_BROWSER works for Firefox, but NOT for Chrome or Edge on
 # Windows: since Chrome 127 they encrypt cookies with App-Bound Encryption and
 # yt-dlp cannot decrypt them (yt-dlp issue #10927). For Chromium browsers use
-# YTRAG_COOKIES_FILE instead — export cookies.txt with a "Get cookies.txt"
+# YTRAG_COOKIES_FILE instead - export cookies.txt with a "Get cookies.txt"
 # browser extension and point this at the file.
 COOKIES_FROM_BROWSER = os.getenv("YTRAG_COOKIES_FROM_BROWSER", "")
 COOKIES_FILE = os.getenv("YTRAG_COOKIES_FILE", "")
 
 
-# Leave QDRANT_URL unset and the index lives in a local folder instead — no
+# Leave QDRANT_URL unset and the index lives in a local folder instead - no
 # account, no Docker, no signup. Set it to use a hosted Qdrant cluster.
 QDRANT_URL = os.getenv("QDRANT_URL", "")
 QDRANT_PATH = Path(os.getenv("YTRAG_QDRANT_PATH", ROOT / "qdrant"))
@@ -127,9 +127,9 @@ TOP_K = int(os.getenv("YTRAG_TOP_K", 6))
 # the LLM sees them.
 #
 # 0.60, measured against 20 in-syllabus and 10 off-topic questions on the full
-# 2933-chunk index. The two populations OVERLAP — the worst genuine question
+# 2933-chunk index. The two populations OVERLAP - the worst genuine question
 # ("number of islands", 0.568) scores worse than the best off-topic one
-# ("neural network backpropagation", 0.409) — so no single cutoff can separate
+# ("neural network backpropagation", 0.409) - so no single cutoff can separate
 # them. Tightening it to 0.50 silently refused real questions like "hashmap kab
 # use karna chahiye"; that is a worse failure than letting a junk chunk reach
 # the LLM, because the student is told their own lecture doesn't exist.
@@ -141,7 +141,7 @@ TOP_K = int(os.getenv("YTRAG_TOP_K", 6))
 MAX_DISTANCE = float(os.getenv("YTRAG_MAX_DISTANCE", 0.6))
 
 # Below this, the top hit is a solid match and the UI says so plainly. Above
-# it the results are still shown, just flagged as weak — measured in-syllabus
+# it the results are still shown, just flagged as weak - measured in-syllabus
 # questions land at 0.30-0.57, so this catches most genuine ones while marking
 # the tail honestly.
 CONFIDENT_DISTANCE = float(os.getenv("YTRAG_CONFIDENT_DISTANCE", 0.45))
@@ -151,7 +151,7 @@ CONFIDENT_DISTANCE = float(os.getenv("YTRAG_CONFIDENT_DISTANCE", 0.45))
 # in the tightly-clustered band bge-m3 produces. Set to 0 to disable.
 TITLE_BOOST = float(os.getenv("YTRAG_TITLE_BOOST", 0.06))
 
-# The written explanation is OPTIONAL — /search returns the timestamps without
+# The written explanation is OPTIONAL - /search returns the timestamps without
 # ever touching an LLM. This only configures the "explain" button.
 #
 # gemini is the default because its free tier is far more generous than Groq's

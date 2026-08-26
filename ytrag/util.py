@@ -39,13 +39,13 @@ def wait_for_network(
 
     waited = 0.0
     say = on_wait or (lambda m: print(f"[network] {m}"))
-    say("connection lost — pausing until it returns")
+    say("connection lost - pausing until it returns")
 
     while waited < max_wait_seconds:
         time.sleep(poll_seconds)
         waited += poll_seconds
         if network_up():
-            say(f"connection restored after {waited / 60:.0f} min — resuming")
+            say(f"connection restored after {waited / 60:.0f} min - resuming")
             return True
         if waited % 300 == 0:
             say(f"still offline after {waited / 60:.0f} min, still waiting")
@@ -66,7 +66,7 @@ def with_retry(
 ) -> T:
     """Run fn, retrying transient failures with exponential backoff.
 
-    For the network steps in a long ingest — a YouTube download or a Qdrant
+    For the network steps in a long ingest - a YouTube download or a Qdrant
     upsert. A flaky connection during a multi-hour unattended run should cost
     a few seconds of waiting, not the rest of the playlist.
 
@@ -79,7 +79,7 @@ def with_retry(
         except Exception as exc:
             if attempt == attempts:
                 raise
-            # A dead connection is not a transient error to back off from —
+            # A dead connection is not a transient error to back off from -
             # it is something to sit and wait out. Burning the remaining
             # attempts against an offline router just wastes them.
             if not network_up():
@@ -91,13 +91,13 @@ def with_retry(
             this_delay = delay
             if is_rate_limit and is_rate_limit(exc):
                 this_delay = rate_limit_delay * attempt
-                reason = f"rate limited — waiting {this_delay / 60:.0f} min"
+                reason = f"rate limited - waiting {this_delay / 60:.0f} min"
             else:
                 reason = f"retrying in {this_delay:.0f}s"
 
             message = (
                 f"{label} failed (attempt {attempt}/{attempts}): "
-                f"{type(exc).__name__}: {str(exc)[:90]} — {reason}"
+                f"{type(exc).__name__}: {str(exc)[:90]} - {reason}"
             )
             if on_retry:
                 on_retry(message)

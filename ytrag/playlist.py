@@ -15,7 +15,7 @@ from ytrag.models import Video
 from ytrag.util import with_retry
 
 # YouTube's way of saying "you are downloading too fast". Not a broken video,
-# not a dead network — a rate limit, which needs a long pause rather than the
+# not a dead network - a rate limit, which needs a long pause rather than the
 # usual few-second backoff.
 _BOT_MARKERS = ("not a bot", "sign in to confirm", "too many requests", "http error 429")
 
@@ -27,7 +27,7 @@ def _is_bot_challenge(exc: Exception) -> bool:
 def _cookie_opts() -> dict:
     """Cookies, if configured. A cookies.txt file wins over browser extraction.
 
-    Browser extraction only really works for Firefox on Windows — Chrome and
+    Browser extraction only really works for Firefox on Windows - Chrome and
     Edge encrypt their cookie stores with App-Bound Encryption, which yt-dlp
     cannot decrypt. Hence the file option.
     """
@@ -80,7 +80,7 @@ def download_audio(video: Video, force: bool = False) -> Path:
     Note there is no ffmpeg postprocessing step here. faster-whisper decodes
     audio itself through PyAV (which bundles its own FFmpeg libraries), so it
     reads the raw m4a/webm directly. That removes the ffmpeg install, and it
-    removes the 16kHz WAVs — which run ~115 MB per hour of video and will
+    removes the 16kHz WAVs - which run ~115 MB per hour of video and will
     quietly eat 40-50 GB across a full playlist.
     """
     existing = find_audio(video.video_id)

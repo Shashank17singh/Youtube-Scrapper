@@ -7,7 +7,7 @@ from ytrag.config import LINK_REWIND_SECONDS
 
 # Fixed namespace so the same chunk_id always produces the same Qdrant point
 # ID. Qdrant only accepts UUIDs or unsigned ints as point IDs, so the readable
-# "videoid:735" chunk_id gets hashed into a UUID — deterministically, which is
+# "videoid:735" chunk_id gets hashed into a UUID - deterministically, which is
 # what makes re-ingesting an upsert instead of a duplicate.
 _NAMESPACE = uuid.UUID("6f9619ff-8b86-d011-b42d-00c04fc964ff")
 
@@ -51,7 +51,7 @@ class Segment:
 class Chunk:
     """What actually gets embedded. Several segments merged into a time window."""
 
-    chunk_id: str  # f"{video_id}:{start_sec}" — stable across re-ingest
+    chunk_id: str  # f"{video_id}:{start_sec}" - stable across re-ingest
     video_id: str
     video_title: str
     start_sec: int
@@ -65,7 +65,7 @@ class Chunk:
 
     @property
     def link_sec(self) -> int:
-        """Where the citation link should land — slightly before the chunk."""
+        """Where the citation link should land - slightly before the chunk."""
         return max(0, self.start_sec - LINK_REWIND_SECONDS)
 
     @property
@@ -77,7 +77,7 @@ class Chunk:
         return format_timestamp(self.link_sec)
 
     def to_payload(self) -> dict:
-        """Qdrant payload. Flat, primitives only — no None, no nested dicts."""
+        """Qdrant payload. Flat, primitives only - no None, no nested dicts."""
         return {
             "chunk_id": self.chunk_id,
             "video_id": self.video_id,

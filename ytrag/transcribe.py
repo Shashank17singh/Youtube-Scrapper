@@ -69,7 +69,7 @@ def get_model(model_name: str = WHISPER_MODEL):
 def get_batched_model(model_name: str = WHISPER_MODEL):
     """Wrap the model in faster-whisper's batched pipeline.
 
-    Same weights, same output quality — it just feeds several VAD-detected
+    Same weights, same output quality - it just feeds several VAD-detected
     speech regions through the encoder at once instead of one at a time.
     """
     from faster_whisper import BatchedInferencePipeline
@@ -85,7 +85,7 @@ def run_whisper(audio_path: str, language: str, model_name: str = WHISPER_MODEL)
     """Transcribe one audio file. Returns (segment_iterator, info).
 
     vad_filter drops silence outright, and condition_on_previous_text=False
-    stops Whisper's loop hallucination — on a long pause or a music sting it
+    stops Whisper's loop hallucination - on a long pause or a music sting it
     otherwise repeats the previous phrase over and over. The batched pipeline
     treats each speech region independently, so it never conditions on
     previous text in the first place.
@@ -102,7 +102,7 @@ def run_whisper(audio_path: str, language: str, model_name: str = WHISPER_MODEL)
         except (ImportError, AttributeError, TypeError) as exc:
             # Only fall back when this build of faster-whisper genuinely can't
             # batch. Catching more than that would silently drop a long run to
-            # the sequential path — four times slower — on a transient error,
+            # the sequential path - four times slower - on a transient error,
             # with nothing in the output to say why it suddenly crawled.
             print(f"[transcribe] batched pipeline unavailable ({exc}); using sequential.")
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Lecture Search — Find the exact moment it was explained</title>
+<title>Lecture Search - Find the exact moment it was explained</title>
 <meta name="description" content="Search any topic and jump to the exact second it was explained in indexed YouTube lectures." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -409,11 +409,11 @@
   <div class="header-inner">
     <div class="brand"><span class="brand-dot"></span>Lecture Search</div>
     <h1>Find the exact second it was <span>explained</span>.</h1>
-    <p class="tagline">Ask any question in plain English. Get timestamped answers sourced directly from indexed lectures — no hallucination.</p>
+    <p class="tagline">Ask any question in plain English. Get timestamped answers sourced directly from indexed lectures - no hallucination.</p>
     <div class="stats">
-      <span class="stat-pill"><b id="statLectures">—</b>&nbsp;lectures</span>
-      <span class="stat-pill"><b id="statHours">—</b>&nbsp;hours indexed</span>
-      <span class="stat-pill"><b id="statChunks">—</b>&nbsp;searchable moments</span>
+      <span class="stat-pill"><b id="statLectures">-</b>&nbsp;lectures</span>
+      <span class="stat-pill"><b id="statHours">-</b>&nbsp;hours indexed</span>
+      <span class="stat-pill"><b id="statChunks">-</b>&nbsp;searchable moments</span>
     </div>
   </div>
 </header>
@@ -475,7 +475,7 @@
       <div class="step" style="margin-bottom:0;">
         <span class="step-num">4</span>
         <div>
-          <strong style="color:var(--text);">Search instantly once done — no restart needed</strong>
+          <strong style="color:var(--text);">Search instantly once done - no restart needed</strong>
         </div>
       </div>
     </div>
@@ -536,7 +536,7 @@ function onYouTubeIframeAPIReady() {
 setTimeout(() => {
   if (!apiReady) {
     apiBlocked = true;
-    nowText.textContent = "YouTube player blocked — timestamps still open on YouTube.";
+    nowText.textContent = "YouTube player blocked - timestamps still open on YouTube.";
     if (pending) { const p = pending; pending = null; openOnYouTube(p.v, p.s); }
   }
 }, 6000);
@@ -565,7 +565,7 @@ function jump(videoId, seconds, title, el) {
     player.loadVideoById({ videoId, startSeconds: seconds });
     currentVideo = videoId;
   }
-  nowText.textContent = `${title} — ${fmt(seconds)}`;
+  nowText.textContent = `${title} - ${fmt(seconds)}`;
   nowPlaying.classList.add("live");
   document.querySelectorAll(".result.active").forEach(n => n.classList.remove("active"));
   if (el) el.classList.add("active");
@@ -630,7 +630,7 @@ function renderResults(data) {
   if (!data.confident) {
     const note = document.createElement("div");
     note.className = "weak-note";
-    note.textContent = "Low confidence — these are the closest matches, but this topic may not be covered directly.";
+    note.textContent = "Low confidence - these are the closest matches, but this topic may not be covered directly.";
     resultsEl.appendChild(note);
   }
   results.forEach((r, i) => {

@@ -4,7 +4,7 @@ The important part of this module is what it does when retrieval comes back
 empty: it returns the refusal without calling the LLM at all.
 
 The model knows DSA perfectly well. If it is handed junk context it will
-happily answer from its own training and attach your timestamps to it — the
+happily answer from its own training and attach your timestamps to it - the
 student clicks the link and you are talking about something else entirely.
 That is strictly worse than saying "cover nahi hua".
 """
@@ -32,7 +32,7 @@ _CLIENT: Groq | None = None
 
 SYSTEM_PROMPT = f"""You are answering using ONLY the transcript excerpts below, which come from
 the instructor's DSA lectures. The transcripts are auto-generated and may contain
-minor errors — read past obvious mis-transcriptions of technical terms.
+minor errors - read past obvious mis-transcriptions of technical terms.
 
 Rules:
 - Answer only from the excerpts. If they don't cover it, say exactly:
@@ -173,7 +173,7 @@ def answer(
 
 
 def retrieve_only(question: str, top_k: int = TOP_K, filtered: bool = False, playlist_id: str | None = None) -> list[tuple[Chunk, float]]:
-    """Retrieval without the LLM — used by evaluate.py and `ytrag search`.
+    """Retrieval without the LLM - used by evaluate.py and `ytrag search`.
 
     Unfiltered by default: 2.0 is the maximum possible cosine distance, so
     nothing is dropped. Eval wants to see what retrieval actually returned,
@@ -184,7 +184,7 @@ def retrieve_only(question: str, top_k: int = TOP_K, filtered: bool = False, pla
 def _is_confident(question: str, hits: list[tuple[Chunk, float]]) -> bool:
     """Is the top result trustworthy enough to present without a caveat?
 
-    Distance alone cannot answer this — measured on the real index, off-topic
+    Distance alone cannot answer this - measured on the real index, off-topic
     questions score *better* than some genuine ones ("React hooks" 0.463 beats
     "number of islands" 0.568), so any single cutoff mislabels one group.
 
@@ -199,7 +199,7 @@ def _is_confident(question: str, hits: list[tuple[Chunk, float]]) -> bool:
 
 
 def search_only(question: str, top_k: int = TOP_K, video_id: str | None = None, playlist_id: str | None = None) -> dict:
-    """Retrieval with no LLM at all — the timestamps, ranked.
+    """Retrieval with no LLM at all - the timestamps, ranked.
 
     This is the main path. The timestamps *are* the product: a student wants
     to land on the moment the thing was explained, not read a paraphrase of
@@ -207,7 +207,7 @@ def search_only(question: str, top_k: int = TOP_K, video_id: str | None = None, 
     of hallucinating, since nothing is generated.
 
     `confident` reports whether the best match is close enough to be worth
-    trusting. It is advisory, not a gate — a weak match still gets shown,
+    trusting. It is advisory, not a gate - a weak match still gets shown,
     because a ranked list the student can dismiss in one glance is far less
     harmful than a confident sentence that is wrong.
     """

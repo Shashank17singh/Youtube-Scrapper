@@ -1,7 +1,7 @@
 """FastAPI wrapper around answer(), plus the single-page UI.
 
 Phase 4 asks for a rate limit and a question-length cap before this goes
-public — both are here, because "add it later" never happens.
+public - both are here, because "add it later" never happens.
 """
 
 import time
@@ -64,7 +64,7 @@ def _rate_limit(request: Request) -> None:
     if len(window) >= config.RATE_LIMIT_REQUESTS:
         raise HTTPException(
             status_code=429,
-            detail=f"Slow down — max {config.RATE_LIMIT_REQUESTS} questions per "
+            detail=f"Slow down - max {config.RATE_LIMIT_REQUESTS} questions per "
             f"{config.RATE_LIMIT_WINDOW_SECONDS}s.",
         )
     window.append(now)
@@ -91,7 +91,7 @@ def playlists():
 def search(payload: AskRequest, request: Request):
     """The main endpoint. No LLM, so no quota, no latency, no hallucination.
 
-    Rate limiting is deliberately not applied here — this costs nothing beyond
+    Rate limiting is deliberately not applied here - this costs nothing beyond
     one embedding and one vector query, so there is no reason to ration it.
     """
     return search_only(payload.question, top_k=payload.top_k, playlist_id=payload.playlist_id)
@@ -109,7 +109,7 @@ def ask(payload: AskRequest, request: Request):
         raise HTTPException(
             status_code=429,
             detail="The language model's usage quota is exhausted. "
-            "This is a provider limit, not a problem with your question — try again later.",
+            "This is a provider limit, not a problem with your question - try again later.",
         )
     except APIStatusError as exc:
         raise HTTPException(status_code=502, detail=f"Language model error: {exc.status_code}")

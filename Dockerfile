@@ -6,7 +6,7 @@ WORKDIR /app
 COPY . ./
 
 # Install only what the serve command needs at runtime.
-# faster-whisper (~2GB) and yt-dlp are for local ingestion only — skip them.
+# faster-whisper (~2GB) and yt-dlp are for local ingestion only - skip them.
 RUN pip install --no-cache-dir \
     "qdrant-client>=1.19.0" \
     "groq>=1.6.0" \
@@ -22,6 +22,6 @@ RUN pip install --no-cache-dir \
 ENV PORT=7860
 EXPOSE $PORT
 
-# Run uvicorn directly — bypasses ytrag serve's path check entirely.
+# Run uvicorn directly - bypasses ytrag serve's path check entirely.
 # PYTHONPATH=/app makes both `ytrag` and `api` importable as top-level packages.
 CMD ["sh", "-c", "PYTHONPATH=/app uvicorn api.main:app --host 0.0.0.0 --port ${PORT}"]

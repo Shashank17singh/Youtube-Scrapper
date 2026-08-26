@@ -1,6 +1,6 @@
 <div align="center">
 
-#  YoutubeScrapper — Timestamp-Level RAG over DSA Lectures
+#  YoutubeScrapper - Timestamp-Level RAG over DSA Lectures
 
 **Ask any DSA question in Hinglish or English and get an answer plus a clickable link that jumps to the exact second it was explained in the lecture**
 
@@ -16,7 +16,7 @@
 
 ##  Overview
 
-A Retrieval-Augmented Generation system built over any number of YouTube playlists. A student asks a question across selected playlists — the system finds the exact moment in the exact lecture where it was explained, and returns a grounded answer with a clickable timestamp link that seeks the embedded player to that second.
+A Retrieval-Augmented Generation system built over any number of YouTube playlists. A student asks a question across selected playlists - the system finds the exact moment in the exact lecture where it was explained, and returns a grounded answer with a clickable timestamp link that seeks the embedded player to that second.
 
 Every generic RAG demo returns a blob of text. This returns *a place in a video*.
 
@@ -56,10 +56,10 @@ graph TD
 
 | | |
 |---|---|
-|  **Timestamp-Level Retrieval** | Citations link to the exact second in the exact lecture — clicking `[2]` seeks the embedded player in-page |
+|  **Timestamp-Level Retrieval** | Citations link to the exact second in the exact lecture - clicking `[2]` seeks the embedded player in-page |
 |  **Grounded Answers Only** | Three guards prevent hallucination: distance cutoff, model self-refusal, and citation-presence check |
 |  **Hinglish + English** | `BAAI/bge-m3` handles code-switched queries natively |
-|  **Batched Transcription** | `faster-whisper` with batch=8 achieves 8x realtime on a GPU — 3x faster than sequential |
+|  **Batched Transcription** | `faster-whisper` with batch=8 achieves 8x realtime on a GPU - 3x faster than sequential |
 |  **Fully Resumable** | Cached transcripts + idempotent upserts mean re-runs skip all completed work |
 |  **Fault-Tolerant Ingest** | One failing video logs and continues; network retries with exponential backoff |
 |  **Web UI** | Single-page FastAPI app using the YouTube IFrame API for in-page seeks |
@@ -72,11 +72,11 @@ graph TD
 | Component | Technology |
 |---|---|
 | Playlist + Audio | `yt-dlp` (Python API) |
-| Transcription | `faster-whisper` — `large-v3`, batched, CUDA |
+| Transcription | `faster-whisper` - `large-v3`, batched, CUDA |
 | Chunking | Custom time-window chunker (timestamps preserved) |
 | Embeddings | `sentence-transformers` + `BAAI/bge-m3` (1024-dim) |
 | Vector Store | Qdrant Cloud |
-| LLM | Groq — `openai/gpt-oss-120b` |
+| LLM | Groq - `openai/gpt-oss-120b` |
 | API + UI | `FastAPI` + single HTML page with YouTube IFrame API |
 | CLI | `typer` + `rich` |
 | Dependency Management | `uv` |
@@ -103,7 +103,7 @@ YoutubeScrapper/
 │       └── index.html   # Web UI (YouTube IFrame API)
 ├── eval/
 │   └── golden.json      # Hand-written retrieval test cases
-├── transcripts/          # Cached transcripts (committed — ~6 MB)
+├── transcripts/          # Cached transcripts (committed - ~6 MB)
 └── README.md
 ```
 
@@ -111,8 +111,8 @@ Runtime data lives outside the repo in `~/.ytrag/`:
 
 ```
 ~/.ytrag/
-├── audio/      # <video_id>.m4a — DELETABLE, regenerable
-└── transcripts/ # <video_id>.json — PRECIOUS, hours of GPU time
+├── audio/      # <video_id>.m4a - DELETABLE, regenerable
+└── transcripts/ # <video_id>.json - PRECIOUS, hours of GPU time
 ```
 
 ---
@@ -168,7 +168,7 @@ This reads the committed transcripts and builds a local vector index in ~20 seco
 uv run ytrag serve
 ```
 
-Open <http://127.0.0.1:8000>, ask a question, click a timestamp — the lecture plays from that exact second.
+Open <http://127.0.0.1:8000>, ask a question, click a timestamp - the lecture plays from that exact second.
 
 ---
 
@@ -196,11 +196,11 @@ All tunables are env-driven. Defaults live in [`ytrag/config.py`](ytrag/config.p
 |---|---|---|
 | `YTRAG_WHISPER_LANG` | `en` | Decide with `ytrag langtest` first |
 | `YTRAG_WHISPER_MODEL` | `large-v3` | `medium` if you're impatient |
-| `YTRAG_WHISPER_BATCH` | `8` | Batched inference — `0` to disable |
+| `YTRAG_WHISPER_BATCH` | `8` | Batched inference - `0` to disable |
 | `YTRAG_CHUNK_SECONDS` | `75` | ~one explained idea per chunk |
 | `YTRAG_EMBED_MODEL` | `BAAI/bge-m3` | `all-MiniLM-L6-v2` for a free deploy tier |
 | `YTRAG_TOP_K` | `6` | Retrieved chunks per query |
-| `YTRAG_MAX_DISTANCE` | `0.5` | Grounding cutoff — tune with `ytrag eval` |
+| `YTRAG_MAX_DISTANCE` | `0.5` | Grounding cutoff - tune with `ytrag eval` |
 | `YTRAG_LLM_MODEL` | `openai/gpt-oss-120b` | |
 
 ---
@@ -208,5 +208,5 @@ All tunables are env-driven. Defaults live in [`ytrag/config.py`](ytrag/config.p
 ##  Known Limitations
 
 - Transcription requires a decent GPU for the full playlist (~8.5 hours on an RTX GPU). The committed transcripts skip this step for everyone else.
-- `BAAI/bge-m3` is 2.2 GB — swap to `all-MiniLM-L6-v2` for free-tier deployment (`uv run ytrag reindex` after changing the env var).
-- The local Qdrant index allows a single process — stop `ytrag serve` before running `ytrag ask` in another terminal, or point `QDRANT_URL` at a hosted cluster.
+- `BAAI/bge-m3` is 2.2 GB - swap to `all-MiniLM-L6-v2` for free-tier deployment (`uv run ytrag reindex` after changing the env var).
+- The local Qdrant index allows a single process - stop `ytrag serve` before running `ytrag ask` in another terminal, or point `QDRANT_URL` at a hosted cluster.

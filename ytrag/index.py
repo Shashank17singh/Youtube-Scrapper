@@ -63,7 +63,7 @@ def get_client() -> QdrantClient:
 
     The local mode matters more than it looks: it means someone can clone this
     repo and have a working index with no Qdrant account, no Docker, and no
-    signup — just a folder on disk. QDRANT_URL upgrades them to the hosted
+    signup - just a folder on disk. QDRANT_URL upgrades them to the hosted
     cluster whenever they want one.
     """
     global _CLIENT
@@ -80,7 +80,7 @@ def get_client() -> QdrantClient:
                 # that explains nothing. Say what actually happened.
                 if "already accessed" in str(exc) or "Storage folder" in str(exc):
                     raise RuntimeError(
-                        "The local index is already open in another process — most likely "
+                        "The local index is already open in another process - most likely "
                         "`ytrag serve` is running in another terminal. Stop it (Ctrl-C) and "
                         "try again, or set QDRANT_URL to use a hosted Qdrant which allows "
                         "many readers at once."
@@ -94,7 +94,7 @@ def collection_name() -> str:
 
     Qdrant rejects vectors whose size does not match the collection, so
     stamping the dim into the name means switching embedding models creates a
-    new collection instead of erroring — and lets a 1024-dim local index and a
+    new collection instead of erroring - and lets a 1024-dim local index and a
     384-dim deploy index live side by side.
     """
     return f"{COLLECTION}_{get_embedder().dim}"
@@ -113,7 +113,7 @@ def ensure_collection() -> str:
                 distance=Distance.COSINE,
             ),
         )
-        # Only meaningful on a Qdrant server — the embedded store filters
+        # Only meaningful on a Qdrant server - the embedded store filters
         # without an index and warns if you ask for one.
         if QDRANT_URL:
             client.create_payload_index(
@@ -176,7 +176,7 @@ def indexed_video_ids() -> set[str]:
 
     Lets a re-run skip the embed+upsert for work already done. Without this,
     restarting a partly-finished ingest re-embeds every cached transcript
-    before reaching new material — minutes of idle GPU each time.
+    before reaching new material - minutes of idle GPU each time.
     """
     client = get_client()
     name = collection_name()
@@ -226,7 +226,7 @@ def get_playlists() -> list[str]:
     return sorted(list(playlists))
 
 
-# Words that carry no topic signal — Hinglish question scaffolding, plus the
+# Words that carry no topic signal - Hinglish question scaffolding, plus the
 # boilerplate that appears in almost every lecture title.
 _STOP = {
     "kaise", "kya", "hai", "hain", "me", "ka", "ki", "ke", "aur", "kab", "karte",
@@ -300,7 +300,7 @@ def search(
             continue
         chunk = Chunk.from_payload(point.payload)
         # Nudge chunks whose lecture title actually mentions what was asked.
-        # Dense similarity over a 75-second ramble dilutes the topic badly —
+        # Dense similarity over a 75-second ramble dilutes the topic badly -
         # a chunk about ASCII values outranked the Number of Islands lecture
         # for "number of islands" until this existed. The title is the one
         # place the topic is stated plainly, so it gets a say in the ordering.
@@ -354,8 +354,8 @@ def stats() -> dict:
 # Shipping a prebuilt index
 # ------------------------------------------------------------------
 # Embedding 2933 chunks takes a couple of minutes on a decent CPU and rather
-# longer on a weak laptop. The vectors themselves are small — 2933 x 384
-# float16 is about 2 MB — so committing them means someone can clone the repo
+# longer on a weak laptop. The vectors themselves are small - 2933 x 384
+# float16 is about 2 MB - so committing them means someone can clone the repo
 # and have a working index in seconds, without ever running the encoder over
 # the corpus. They still need the model to embed their own *queries*, which is
 # why the small one matters.
@@ -394,7 +394,7 @@ def export_vectors(path: Path) -> dict:
 def import_vectors(path: Path, batch_size: int = UPSERT_BATCH) -> dict:
     """Load a .npz built by export_vectors straight into the collection.
 
-    Refuses to load vectors built by a different embedding model — mixing them
+    Refuses to load vectors built by a different embedding model - mixing them
     would silently wreck retrieval, since a query encoded by one model is
     meaningless against another's vectors.
     """

@@ -1,4 +1,4 @@
-# YT Lecture RAG — Build Spec
+# YT Lecture RAG - Build Spec
 
 Paste this whole file into Claude Code as the project brief. It contains the architecture,
 the exact module contracts, every non-obvious failure mode, and the phase order.
@@ -16,9 +16,9 @@ second in the exact lecture where I explained it**.
 
 → Answer: 3-4 lines, grounded only in what I actually said
 → Sources:
-   [1] DP Lecture 3 — Memoization Deep Dive        @ 12:04   ▸ jump
-   [2] DP Lecture 5 — Tabulation Recipe            @ 04:31   ▸ jump
-   [3] DP Lecture 5 — Tabulation Recipe            @ 21:47   ▸ jump
+   [1] DP Lecture 3 - Memoization Deep Dive        @ 12:04   ▸ jump
+   [2] DP Lecture 5 - Tabulation Recipe            @ 04:31   ▸ jump
+   [3] DP Lecture 5 - Tabulation Recipe            @ 21:47   ▸ jump
 ```
 
 **The differentiator is timestamp-level retrieval.** Every generic RAG demo returns a blob
@@ -36,14 +36,14 @@ Two phases: working local CLI first, then a deployed web app students can actual
 | Audio transcode | `ffmpeg` (via yt-dlp postprocessor) | Whisper wants 16kHz mono WAV |
 | Transcription | `mlx-whisper` w/ `whisper-large-v3` | Apple-Silicon-native, ~3-4x faster than openai-whisper on M4 |
 | Transcription fallback | `faster-whisper` (CTranslate2) | For non-Mac / CI |
-| Chunking | Custom (time-window based) | LangChain-style text splitters destroy timestamps — see §6.1 |
+| Chunking | Custom (time-window based) | LangChain-style text splitters destroy timestamps - see §6.1 |
 | Embeddings (local) | `sentence-transformers` + `BAAI/bge-m3` | Multilingual, handles code-switched Hinglish; 1024-dim |
 | Embeddings (deploy) | Gemini `text-embedding-004` | 768-dim, no 2.2GB model on the server |
 | Vector store | `chromadb` (PersistentClient) | Zero-setup local, metadata filtering, good enough at this scale |
 | LLM | Gemini `gemini-2.0-flash` (default), Anthropic or Ollama swappable | Free tier, fast, fine for grounded summarisation |
 | API (Phase 3) | `FastAPI` + `uvicorn` | |
 | Frontend (Phase 3) | Single HTML page + YouTube IFrame API | `player.seekTo()` = in-page jumping, no page reload |
-| CLI | `typer` + `rich` | Progress bars matter — transcription is slow and you'll be staring at it |
+| CLI | `typer` + `rich` | Progress bars matter - transcription is slow and you'll be staring at it |
 
 ```
 pip install yt-dlp mlx-whisper chromadb sentence-transformers \
@@ -80,9 +80,9 @@ Runtime data lives outside the repo, in `~/.ytrag/`:
 
 ```
 ~/.ytrag/
-├── audio/        # <video_id>.wav — DELETABLE, regenerable
-├── transcripts/  # <video_id>.json — PRECIOUS, never delete (hours of GPU time)
-└── chroma/       # vector store — regenerable from transcripts in minutes
+├── audio/        # <video_id>.wav - DELETABLE, regenerable
+├── transcripts/  # <video_id>.json - PRECIOUS, never delete (hours of GPU time)
+└── chroma/       # vector store - regenerable from transcripts in minutes
 ```
 
 That split matters. Transcripts are the expensive artifact. Everything downstream of them
@@ -108,7 +108,7 @@ class Segment:             # raw Whisper output
 
 @dataclass
 class Chunk:               # what actually gets embedded
-    chunk_id: str          # f"{video_id}:{int(start_sec)}"  — stable, enables upsert
+    chunk_id: str          # f"{video_id}:{int(start_sec)}"  - stable, enables upsert
     video_id: str
     video_title: str
     start_sec: int
@@ -143,7 +143,7 @@ for d in (AUDIO_DIR, TRANSCRIPT_DIR, CHROMA_DIR):
 
 WHISPER_BACKEND = os.getenv("YTRAG_WHISPER", "mlx")            # mlx | faster
 WHISPER_MODEL   = os.getenv("YTRAG_WHISPER_MODEL", "mlx-community/whisper-large-v3-mlx")
-WHISPER_LANG    = os.getenv("YTRAG_WHISPER_LANG", "en")        # see §6.0 — TEST THIS FIRST
+WHISPER_LANG    = os.getenv("YTRAG_WHISPER_LANG", "en")        # see §6.0 - TEST THIS FIRST
 
 CHUNK_SECONDS         = int(os.getenv("YTRAG_CHUNK_SECONDS", 75))
 CHUNK_OVERLAP_SECONDS = int(os.getenv("YTRAG_CHUNK_OVERLAP", 15))
@@ -190,7 +190,7 @@ def download_audio(video: Video, force: bool = False) -> Path:
         ydl.download([video.url])
     return out
 ```
-`extract_flat` is deliberate — it lists 40 videos in one request instead of 40.
+`extract_flat` is deliberate - it lists 40 videos in one request instead of 40.
 
 ### `transcribe.py`
 ```python
@@ -200,7 +200,7 @@ def transcribe(video: Video, force: bool = False) -> list[Segment]
   important line in the codebase. Re-transcribing a 40-video playlist by accident costs hours.
 - Write the JSON atomically (temp file + `os.replace`), so a Ctrl-C mid-write doesn't leave
   a corrupt half-transcript that the cache check then happily trusts forever.
-- Store `{"video_id", "title", "language", "model", "segments": [...]}` — record which model
+- Store `{"video_id", "title", "language", "model", "segments": [...]}` - record which model
   and language produced it, so you can tell later which files need redoing.
 - mlx call:
   ```python
@@ -224,7 +224,7 @@ def chunk_segments(video: Video, segments: list[Segment]) -> list[Chunk]
 Greedy time-window merge:
 - Accumulate segments until `end - window_start >= CHUNK_SECONDS`, emit a Chunk.
 - Start the next window at `end - CHUNK_OVERLAP_SECONDS`, backing up to the nearest
-  segment boundary — **never split a segment**.
+  segment boundary - **never split a segment**.
 - Drop chunks with fewer than ~15 words (intros, "toh chaliye shuru karte hain").
 - Prefix the chunk text with the video title before embedding:
   `f"{video.title}\n\n{body}"`. Cheap trick, meaningfully improves retrieval, because a
@@ -240,10 +240,10 @@ class Embedder(Protocol):
 def get_embedder() -> Embedder    # dispatch on EMBED_BACKEND
 ```
 - Local: `SentenceTransformer(EMBED_MODEL)`, `normalize_embeddings=True`, batch 32.
-- bge-m3 needs **no** instruction prefix. (bge-*-en-v1.5 does — `"Represent this sentence
+- bge-m3 needs **no** instruction prefix. (bge-*-en-v1.5 does - `"Represent this sentence
   for searching relevant passages: "` on the query only. If you ever switch models, check.)
 - Gemini: `task_type="retrieval_document"` for chunks, `"retrieval_query"` for queries.
-  Using the wrong task_type silently degrades results — no error, just worse answers.
+  Using the wrong task_type silently degrades results - no error, just worse answers.
 
 ### `index.py`
 ```python
@@ -268,7 +268,7 @@ Prompt shape:
 ```
 You are answering using ONLY the transcript excerpts below, which come from
 the instructor's DSA lectures. The transcripts are auto-generated and may contain
-minor errors — read past obvious mis-transcriptions of technical terms.
+minor errors - read past obvious mis-transcriptions of technical terms.
 
 Rules:
 - Answer only from the excerpts. If they don't cover it, say exactly:
@@ -284,7 +284,7 @@ EXCERPTS
 
 QUESTION: <question>
 ```
-Then map `[n]` back to the chunk to build the citation list — **only include citations the
+Then map `[n]` back to the chunk to build the citation list - **only include citations the
 model actually referenced**, so students don't see three links where only one is relevant.
 
 ### `evaluate.py`
@@ -314,7 +314,7 @@ Wrap it so one failing video logs and continues instead of killing a 3-hour run.
 
 ---
 
-## 6. Failure modes — read before writing code
+## 6. Failure modes - read before writing code
 
 ### 6.0 The Whisper language flag (do this first, before anything else)
 The lectures are Hinglish. `language="hi"` gives Devanagari output; `language="en"` gives
@@ -322,9 +322,9 @@ romanised/translated output. These produce *very* different retrieval behaviour,
 student queries will be romanised Hinglish or English.
 
 **Before ingesting the playlist:** transcribe ONE lecture both ways and read 2-3 minutes of
-each. Check specifically what happens to technical terms — memoization, adjacency list,
+each. Check specifically what happens to technical terms - memoization, adjacency list,
 time complexity, subproblem, DP table. Whichever keeps those clean, wins. My expectation is
-`"en"`, but verify — this decision is baked into hours of compute afterwards.
+`"en"`, but verify - this decision is baked into hours of compute afterwards.
 
 ### 6.1 Don't use a generic text splitter
 `RecursiveCharacterTextSplitter` and friends operate on a concatenated string and throw
@@ -334,13 +334,13 @@ time domain. This is why `chunk.py` is hand-written.
 ### 6.2 Whisper loop hallucinations
 On silence, music stings, or long pauses Whisper repeats the previous phrase over and over.
 `condition_on_previous_text=False` cuts most of it. Also post-filter: if a chunk is >60%
-one repeated sentence, drop it. These chunks are retrieval poison — they match everything
+one repeated sentence, drop it. These chunks are retrieval poison - they match everything
 and say nothing.
 
 ### 6.3 Chunk size
 75s ≈ 180-220 words of speech, which is roughly one explained idea. Too small (20s) and
 chunks lack context; too big (5 min) and the timestamp lands you before the relevant part
-and the student has to hunt. If you tune this, re-run `eval` — don't eyeball it.
+and the student has to hunt. If you tune this, re-run `eval` - don't eyeball it.
 
 ### 6.4 The timestamp should land slightly early
 Retrieval hits the chunk containing the answer, but the explanation usually *starts* just
@@ -349,7 +349,7 @@ noticeably better feel.
 
 ### 6.5 Ungrounded answers will destroy the demo
 Gemini knows DSA perfectly well. If retrieval returns junk, it will answer from its own
-knowledge and cheerfully attach your timestamps to it — the student clicks and you're
+knowledge and cheerfully attach your timestamps to it - the student clicks and you're
 talking about something else. That is worse than saying "cover nahi hua".
 
 Two guards: drop results with `distance > MAX_DISTANCE`, and if nothing survives, return the
@@ -360,7 +360,7 @@ Everything must be safe to re-run. Cached transcripts, `upsert` not `add`, resum
 partial failure. You *will* re-run this many times.
 
 ### 6.7 Deploy-time embedding swap is free
-bge-m3 is ~2.2GB — it won't fit a free hosting tier. For deploy set `YTRAG_EMBED=gemini`
+bge-m3 is ~2.2GB - it won't fit a free hosting tier. For deploy set `YTRAG_EMBED=gemini`
 and run `ytrag reindex`. Because transcripts are cached, that's a few minutes of embedding,
 not hours of re-transcription. Dimension differs (1024 vs 768), which is exactly why the
 collection name carries the dim.
@@ -369,24 +369,24 @@ collection name carries the dim.
 
 ## 7. Phase order
 
-**Phase 0 — one video, end to end (do not skip).**
+**Phase 0 - one video, end to end (do not skip).**
 Run the language test from §6.0. Then take a single lecture all the way through:
 download → transcribe → chunk → embed → ask one question → click the link and confirm it
 lands on the right moment. Every architectural mistake shows up here for the price of one
 video instead of forty.
 
-**Phase 1 — full playlist ingest.** Progress bar, per-video error handling, resume support.
+**Phase 1 - full playlist ingest.** Progress bar, per-video error handling, resume support.
 Write down wall-clock time per lecture-hour; you'll want that number for the video.
 
-**Phase 2 — query CLI + golden-set eval.** `rich` output with clickable terminal links.
+**Phase 2 - query CLI + golden-set eval.** `rich` output with clickable terminal links.
 Get a hit-rate number.
 
-**Phase 3 — web UI.** FastAPI `POST /ask` returning the `answer()` dict, plus a single HTML
+**Phase 3 - web UI.** FastAPI `POST /ask` returning the `answer()` dict, plus a single HTML
 page. Use the YouTube IFrame API so citations call `player.seekTo(start_sec, true)` and jump
 *inside the embedded player* rather than opening a new tab. That in-page seek is the moment
 that makes people go "wait, how".
 
-**Phase 4 — deploy.** `YTRAG_EMBED=gemini`, `reindex`, ship to Render/Railway/Fly with the
+**Phase 4 - deploy.** `YTRAG_EMBED=gemini`, `reindex`, ship to Render/Railway/Fly with the
 Chroma dir persisted (or swap to hosted Qdrant if it outgrows a volume). Rate-limit `/ask`
 and cap question length before it's public.
 
@@ -407,7 +407,7 @@ and cap question length before it's public.
 
 ## 9. Note for later (content)
 
-The strongest on-camera beat here isn't the RAG pipeline — everyone has seen a RAG pipeline.
+The strongest on-camera beat here isn't the RAG pipeline - everyone has seen a RAG pipeline.
 It's §6.5: showing the system *refusing* to answer, and explaining why a RAG system that
 never says "I don't know" is a broken RAG system. That's the part nobody demos, and it's
 the part that's actually engineering.

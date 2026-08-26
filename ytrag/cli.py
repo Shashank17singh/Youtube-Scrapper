@@ -55,7 +55,7 @@ from ytrag.transcribe import (
 )
 
 # Windows consoles still default to cp1252, which cannot encode the box-drawing
-# and arrow characters rich uses — output crashes with UnicodeEncodeError partway
+# and arrow characters rich uses - output crashes with UnicodeEncodeError partway
 # through a table. Force UTF-8 before anything prints.
 for _stream in (sys.stdout, sys.stderr):
     try:
@@ -111,7 +111,7 @@ def ingest(
 
     already_indexed = set() if force else indexed_video_ids()
     if already_indexed:
-        console.print(f"[dim]{len(already_indexed)} video(s) already indexed — will skip.[/dim]\n")
+        console.print(f"[dim]{len(already_indexed)} video(s) already indexed - will skip.[/dim]\n")
 
     indexed = 0
     failures: list[tuple[str, str]] = []
@@ -159,7 +159,7 @@ def ingest(
                     consecutive_failures = 0
                     done += 1
                     progress.console.print(
-                        f"  [green]ok[/green] {video.title[:52]} — {len(chunks)} chunks"
+                        f"  [green]ok[/green] {video.title[:52]} - {len(chunks)} chunks"
                     )
                     break
 
@@ -167,7 +167,7 @@ def ingest(
                     # Ctrl-C stops here rather than being swallowed as a
                     # failure. Everything already transcribed stays cached.
                     aborted = True
-                    progress.console.print("\n[yellow]Interrupted — cached work is safe.[/yellow]")
+                    progress.console.print("\n[yellow]Interrupted - cached work is safe.[/yellow]")
                     break
 
                 except Exception as exc:
@@ -179,7 +179,7 @@ def ingest(
                     if not network_up() and network_retries < MAX_NETWORK_RETRIES:
                         network_retries += 1
                         progress.console.print(
-                            f"  [yellow]offline[/yellow] {video.title[:42]} — waiting for network"
+                            f"  [yellow]offline[/yellow] {video.title[:42]} - waiting for network"
                         )
                         if wait_for_network(
                             on_wait=lambda m: progress.console.print(f"  [dim]network: {m}[/dim]")
@@ -190,7 +190,7 @@ def ingest(
                     # One bad video must not kill a multi-hour run.
                     failures.append((video.title, str(exc)))
                     consecutive_failures += 1
-                    progress.console.print(f"  [red]fail[/red] {video.title[:52]} — {exc}")
+                    progress.console.print(f"  [red]fail[/red] {video.title[:52]} - {exc}")
 
                     # Back-to-back failures with the network *up* means
                     # something systemic is wrong. Stop cleanly instead of
@@ -199,7 +199,7 @@ def ingest(
                     if stop_after_failures and consecutive_failures >= stop_after_failures:
                         aborted = True
                         progress.console.print(
-                            f"\n[bold red]{consecutive_failures} failures in a row — "
+                            f"\n[bold red]{consecutive_failures} failures in a row - "
                             f"stopping.[/bold red] Re-run the same command once it's sorted: "
                             f"finished videos are cached and will be skipped."
                         )
@@ -219,10 +219,10 @@ def ingest(
     if failures:
         console.print(f"[bold red]{len(failures)} failure(s):[/bold red]")
         for title, err in failures:
-            console.print(f"  • {title[:52]} — {err[:100]}")
+            console.print(f"  • {title[:52]} - {err[:100]}")
     if aborted or failures:
         console.print(
-            "\n[dim]Re-run the same command to continue — cached transcripts are skipped "
+            "\n[dim]Re-run the same command to continue - cached transcripts are skipped "
             "and upserts are idempotent, so nothing is redone or duplicated.[/dim]"
         )
 
@@ -245,11 +245,11 @@ def reindex(
     """Re-chunk and re-embed from cached transcripts. Never re-transcribes.
 
     This is what makes changing your mind about the embedding model or chunk
-    size cost minutes instead of hours — and it is how someone without a GPU
+    size cost minutes instead of hours - and it is how someone without a GPU
     builds the whole index from the transcripts shipped in the repo.
     """
     # Precedence matters. Your own live cache always wins over the copy
-    # committed to the repo — that copy is a point-in-time snapshot and goes
+    # committed to the repo - that copy is a point-in-time snapshot and goes
     # stale the moment you transcribe anything new. The bundled folder is a
     # fallback for someone who cloned the repo and has no cache of their own.
     if transcripts:
@@ -276,7 +276,7 @@ def reindex(
         for video_id in video_ids:
             data = load_transcript(video_id, source)
             if data is None:
-                progress.console.print(f"  [red]skip[/red] {video_id} — unreadable transcript")
+                progress.console.print(f"  [red]skip[/red] {video_id} - unreadable transcript")
                 progress.advance(task)
                 continue
 
@@ -342,13 +342,13 @@ def search(
     question: str = typer.Argument(...),
     top_k: int = typer.Option(config.TOP_K, "--top-k", "-k"),
 ):
-    """Retrieval only — see exactly what comes back, and at what distance."""
+    """Retrieval only - see exactly what comes back, and at what distance."""
     hits = retrieve_only(question, top_k=top_k)
     if not hits:
         console.print("[yellow]Nothing retrieved. Is the collection populated?[/yellow]")
         return
 
-    table = Table(title=f"Top {len(hits)} — cutoff is {config.MAX_DISTANCE}")
+    table = Table(title=f"Top {len(hits)} - cutoff is {config.MAX_DISTANCE}")
     table.add_column("Dist", width=6)
     table.add_column("Lecture")
     table.add_column("At", width=9)
@@ -377,7 +377,7 @@ def progress(
 ):
     """How far along is an ingest? Safe to run while one is going.
 
-    Deliberately touches nothing heavy — no embedding model, no Qdrant, no
+    Deliberately touches nothing heavy - no embedding model, no Qdrant, no
     GPU. It just reads the transcripts folder, so it cannot slow down or
     interfere with a run in flight.
     """
@@ -438,7 +438,7 @@ def progress(
     colour = "green" if idle_min < 15 else "yellow" if idle_min < 40 else "red"
     console.print(
         f"\n[dim]Last transcript written [/dim][{colour}]{idle_min:.0f} min ago[/{colour}]"
-        + ("[dim] — looks stalled?[/dim]" if idle_min > 40 else "")
+        + ("[dim] - looks stalled?[/dim]" if idle_min > 40 else "")
     )
 
 
@@ -479,7 +479,7 @@ def eval_cmd(
     """Score retrieval against the golden set."""
     report = run_eval(path, k=k)
     if report["n"] == 0:
-        console.print(f"[yellow]No entries in {path}. Fill it in — see the README.[/yellow]")
+        console.print(f"[yellow]No entries in {path}. Fill it in - see the README.[/yellow]")
         raise typer.Exit(1)
 
     rate = report[f"hit_rate_at_{k}"]
@@ -506,7 +506,7 @@ def eval_cmd(
             around = miss["expect_around_sec"]
             expected_at = format_timestamp(around) if around is not None else "anywhere"
             console.print(
-                f"    expected {miss['expected']} @ {expected_at} — "
+                f"    expected {miss['expected']} @ {expected_at} - "
                 f"video in top-{k}: {'yes' if miss['video_hit'] else 'no'}"
             )
             if verbose:
@@ -520,7 +520,7 @@ def eval_cmd(
 
 
 # ------------------------------------------------------------------
-# langtest — §6.0, run this before ingesting anything
+# langtest - §6.0, run this before ingesting anything
 # ------------------------------------------------------------------
 @app.command()
 def langtest(
@@ -534,7 +534,7 @@ def langtest(
     gives romanised/translated output. Student queries will be romanised
     Hinglish or English, so these two produce very different retrieval
     behaviour. Read a few minutes of each and check what happens to the
-    technical terms specifically — memoization, adjacency list, time
+    technical terms specifically - memoization, adjacency list, time
     complexity, subproblem, DP table. Whichever keeps those clean, wins.
 
     This decision gets baked into hours of compute afterwards, so make it on
@@ -572,7 +572,7 @@ def langtest(
             json.dump(lines, f, ensure_ascii=False, indent=1)
         console.print(f"[dim]saved -> {out}[/dim]\n")
 
-    # The audio stays put — you will want it for a second pass.
+    # The audio stays put - you will want it for a second pass.
     console.print(
         f"[dim]Audio kept at {audio_path}. "
         f"Set YTRAG_WHISPER_LANG to whichever won, then run `ytrag ingest`.[/dim]"
@@ -596,11 +596,11 @@ def preflight(playlist: str = typer.Option("", "--playlist", "-p", help="Also ch
         nonlocal ok
         try:
             detail = fn()
-            console.print(f"  [green]pass[/green] {name}" + (f" — {detail}" if detail else ""))
+            console.print(f"  [green]pass[/green] {name}" + (f" - {detail}" if detail else ""))
             return True
         except Exception as exc:
             ok = False
-            console.print(f"  [red]FAIL[/red] {name} — {type(exc).__name__}: {str(exc)[:100]}")
+            console.print(f"  [red]FAIL[/red] {name} - {type(exc).__name__}: {str(exc)[:100]}")
             return False
 
     console.print("[bold]Config[/bold]")
@@ -637,7 +637,7 @@ def preflight(playlist: str = typer.Option("", "--playlist", "-p", help="Also ch
     if ok:
         console.print("\n[bold green]All preflight checks passed.[/bold green]")
     else:
-        console.print("\n[bold red]Preflight failed — fix the above before a long run.[/bold red]")
+        console.print("\n[bold red]Preflight failed - fix the above before a long run.[/bold red]")
         raise typer.Exit(1)
 
 
@@ -721,7 +721,7 @@ def _bundled_transcripts() -> Path | None:
     """The repo's own transcripts/ folder, if it has anything in it.
 
     Lets someone clone the repo and build the index with no GPU and no
-    downloads — transcripts are ~1.4 KB per minute of video, so a 68-hour
+    downloads - transcripts are ~1.4 KB per minute of video, so a 68-hour
     playlist ships in about 6 MB of JSON.
     """
     folder = Path(__file__).resolve().parent.parent / "transcripts"
@@ -737,7 +737,7 @@ def export_transcripts(
     """Copy cached transcripts into the repo so they can be committed and shared.
 
     This is the artifact worth distributing. It costs GPU-hours to produce and
-    nothing to consume — anyone with it can rebuild the entire index in minutes
+    nothing to consume - anyone with it can rebuild the entire index in minutes
     on a laptop.
     """
     import shutil
@@ -747,7 +747,7 @@ def export_transcripts(
 
     ids = cached_video_ids()
     if not ids:
-        console.print("[yellow]Nothing to export — no cached transcripts.[/yellow]")
+        console.print("[yellow]Nothing to export - no cached transcripts.[/yellow]")
         raise typer.Exit(1)
 
     total_bytes = 0
@@ -762,7 +762,7 @@ def export_transcripts(
     )
     console.print("[dim]Commit these. Anyone who clones can then run `ytrag reindex`.[/dim]")
     console.print(
-        "[dim]This is a snapshot — re-run it after transcribing anything new. "
+        "[dim]This is a snapshot - re-run it after transcribing anything new. "
         "Your own commands always use the live cache, never this copy.[/dim]"
     )
 
@@ -810,7 +810,7 @@ def serve(
         if probe.connect_ex((host, port)) == 0:
             console.print(
                 f"[bold red]Port {port} is already in use.[/bold red]\n"
-                f"Something is already listening on {host}:{port} — most likely "
+                f"Something is already listening on {host}:{port} - most likely "
                 f"another `ytrag serve` you started earlier.\n\n"
                 f"Either stop that one (Ctrl-C in its window), or use another "
                 f"port here:\n  [cyan]uv run ytrag serve --port {port + 1}[/cyan]\n\n"
