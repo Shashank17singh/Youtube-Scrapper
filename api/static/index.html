@@ -3,257 +3,347 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Lecture Search</title>
-<meta name="description" content="Ask any DSA question and jump to the exact second it was explained." />
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'></text></svg>" />
+<title>Lecture Search — Find the exact moment it was explained</title>
+<meta name="description" content="Search any topic and jump to the exact second it was explained in indexed YouTube lectures." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --bg:        #0b0d10;
-    --bg-soft:   #12151a;
-    --panel:     #161a20;
-    --panel-2:   #1c2129;
-    --border:    #262c36;
-    --border-lit:#333b47;
-    --text:      #e8edf3;
-    --text-dim:  #9aa4b2;
-    --text-faint:#68717f;
-    --accent:    #ff6b35;
-    --accent-dim:#ff6b3522;
-    --green:     #3fb950;
-    --amber:     #d9a441;
-    --radius:    12px;
+    --bg:          #090b0e;
+    --bg-soft:     #0f1216;
+    --panel:       #141820;
+    --panel-2:     #1a2030;
+    --border:      #222a38;
+    --border-lit:  #2e3a4e;
+    --text:        #e2e8f4;
+    --text-dim:    #8896aa;
+    --text-faint:  #4f6070;
+    --accent:      #3b82f6;
+    --accent-glow: #3b82f620;
+    --accent-dim:  #3b82f614;
+    --green:       #22c55e;
+    --amber:       #f59e0b;
+    --red:         #ef4444;
+    --radius:      10px;
   }
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
   body {
-    margin: 0;
     background: var(--bg);
     color: var(--text);
     font-family: Inter, -apple-system, "Segoe UI", Roboto, sans-serif;
-    font-size: 15px;
-    line-height: 1.65;
+    font-size: 14px;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
   }
 
-  /* ---------- header ---------- */
+  /* ── Header ── */
   header {
     border-bottom: 1px solid var(--border);
-    background: linear-gradient(180deg, #14181e 0%, var(--bg) 100%);
+    background: linear-gradient(180deg, #0d1117 0%, var(--bg) 100%);
+    padding: 24px 32px 28px;
   }
   .header-inner {
-    max-width: 1180px;
+    max-width: 1160px;
     margin: 0 auto;
-    padding: 26px 24px 30px;
   }
   .brand {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    font-size: 12px;
+    gap: 7px;
+    font-size: 11px;
     font-weight: 600;
-    letter-spacing: 0.09em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--accent);
-    margin-bottom: 12px;
+    margin-bottom: 14px;
   }
-  .brand::before {
-    content: "";
-    width: 7px; height: 7px;
+  .brand-dot {
+    width: 6px; height: 6px;
     border-radius: 50%;
     background: var(--accent);
-    box-shadow: 0 0 10px var(--accent);
+    box-shadow: 0 0 8px var(--accent);
   }
   h1 {
-    margin: 0;
-    font-size: clamp(26px, 4vw, 36px);
+    font-size: clamp(22px, 3.5vw, 32px);
     font-weight: 800;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.03em;
     line-height: 1.15;
+    color: var(--text);
   }
-  h1 em { font-style: normal; color: var(--accent); }
+  h1 span { color: var(--accent); }
   .tagline {
-    margin: 10px 0 0;
+    margin-top: 8px;
     color: var(--text-dim);
-    font-size: 15px;
-    max-width: 620px;
+    font-size: 14px;
+    max-width: 560px;
   }
   .stats {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px 26px;
-    margin-top: 20px;
-    font-size: 13px;
+    gap: 8px 24px;
+    margin-top: 18px;
+    font-size: 12.5px;
     color: var(--text-faint);
   }
   .stats b { color: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 12px;
+  }
 
-  /* ---------- layout ---------- */
+  /* ── Layout ── */
   main {
-    max-width: 1180px;
+    max-width: 1160px;
     margin: 0 auto;
-    padding: 26px 24px 80px;
+    padding: 28px 32px 80px;
     display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-    gap: 30px;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: 28px;
     align-items: start;
   }
-  @media (max-width: 940px) {
-    main { grid-template-columns: 1fr; gap: 22px; }
+  @media (max-width: 900px) {
+    main { grid-template-columns: 1fr; gap: 20px; padding: 20px 16px 60px; }
     .player-col { order: -1; }
+    header { padding: 18px 16px 22px; }
   }
 
-  /* ---------- search ---------- */
-  .search {
+  /* ── Search bar ── */
+  .search-wrap {
     display: flex;
-    gap: 10px;
+    gap: 8px;
+    align-items: center;
     background: var(--panel);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 6px 6px 6px 16px;
+    padding: 6px 6px 6px 14px;
     transition: border-color .15s, box-shadow .15s;
   }
-  .search:focus-within {
+  .search-wrap:focus-within {
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-dim);
+    box-shadow: 0 0 0 3px var(--accent-glow);
   }
-  .search svg { flex: none; align-self: center; color: var(--text-faint); }
+  .search-icon { flex: none; color: var(--text-faint); }
   input[type=text] {
     flex: 1;
     min-width: 0;
-    padding: 11px 0;
+    padding: 9px 4px;
     border: 0;
     background: transparent;
     color: var(--text);
     font: inherit;
+    font-size: 14px;
   }
   input[type=text]:focus { outline: none; }
   input[type=text]::placeholder { color: var(--text-faint); }
-  button.ask {
+  button.search-btn {
     flex: none;
-    padding: 11px 22px;
+    padding: 9px 20px;
     border: 0;
-    border-radius: 8px;
+    border-radius: 7px;
     background: var(--accent);
     color: #fff;
     font: inherit;
-    font-weight: 650;
+    font-size: 13.5px;
+    font-weight: 600;
     cursor: pointer;
-    transition: filter .15s, opacity .15s;
+    transition: opacity .15s, filter .15s;
+    white-space: nowrap;
   }
-  button.ask:hover:not(:disabled) { filter: brightness(1.1); }
-  button.ask:disabled { opacity: .55; cursor: default; }
+  button.search-btn:hover:not(:disabled) { filter: brightness(1.1); }
+  button.search-btn:disabled { opacity: .45; cursor: default; }
 
-  /* ---------- example chips ---------- */
-  .examples { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-  .chip {
-    border: 1px solid var(--border);
-    background: var(--bg-soft);
-    color: var(--text-dim);
-    border-radius: 999px;
-    padding: 6px 14px;
-    font: inherit;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all .15s;
-  }
-  .chip:hover { border-color: var(--accent); color: var(--text); background: var(--panel-2); }
-
-  /* ---------- answer ---------- */
-  .label {
-    font-size: 11px;
+  /* ── Labels ── */
+  .section-label {
+    font-size: 10.5px;
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--text-faint);
-    margin: 30px 0 10px;
-  }
-  .answer {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--green);
-    border-radius: var(--radius);
-    padding: 18px 20px;
-    white-space: pre-wrap;
-    font-size: 15.5px;
-  }
-  .answer.refused {
-    border-left-color: var(--amber);
-    background: linear-gradient(90deg, #d9a4410d, var(--panel) 60%);
-  }
-  .answer.idle { border-left-color: var(--border); color: var(--text-dim); }
-  .refusal-note {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid var(--border);
-    font-size: 13px;
-    color: var(--text-faint);
-    white-space: normal;
+    margin: 24px 0 10px;
   }
 
-  .cite {
-    display: inline-block;
-    background: var(--accent-dim);
-    color: var(--accent);
-    border: 1px solid transparent;
-    border-radius: 5px;
-    padding: 0 6px;
-    font-size: 12.5px;
-    font-weight: 700;
-    cursor: pointer;
-    vertical-align: 1px;
-    transition: all .12s;
-  }
-  .cite:hover { background: var(--accent); color: #fff; }
-
-  /* ---------- sources ---------- */
-  .source {
-    display: flex;
-    align-items: center;
-    gap: 13px;
+  /* ── Results ── */
+  .result {
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    gap: 3px 12px;
     width: 100%;
     text-align: left;
     background: var(--panel);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: var(--radius);
     padding: 12px 14px;
     margin-bottom: 8px;
     color: var(--text);
     font: inherit;
     cursor: pointer;
-    transition: all .15s;
+    transition: border-color .12s, background .12s, transform .12s;
   }
-  .source:hover { border-color: var(--accent); background: var(--panel-2); transform: translateX(2px); }
-  .source.active { border-color: var(--accent); background: var(--panel-2); }
-  .source .n {
-    flex: none;
-    width: 24px; height: 24px;
+  .result:hover { border-color: var(--accent); background: var(--panel-2); transform: translateX(3px); }
+  .result.active { border-color: var(--accent); background: var(--panel-2); }
+  .result .n {
+    grid-row: 1;
+    width: 28px; height: 28px;
     display: grid; place-items: center;
     background: var(--accent-dim);
     color: var(--accent);
     border-radius: 6px;
     font-size: 12px; font-weight: 700;
   }
-  .source .title {
-    flex: 1; min-width: 0;
+  .result .vtitle {
+    grid-row: 1;
+    font-size: 13.5px; font-weight: 550;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    font-size: 14px;
+    align-self: center;
   }
-  .source .at {
-    flex: none;
+  .result .at {
+    grid-row: 1;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 5px;
+    padding: 3px 9px;
+    font-size: 12px; font-weight: 650;
     font-variant-numeric: tabular-nums;
+    align-self: center;
+  }
+  .result .preview {
+    grid-column: 2 / 4; grid-row: 2;
+    color: var(--text-faint); font-size: 12.5px; line-height: 1.5;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-top: 2px;
+  }
+
+  /* ── Answer box ── */
+  .answer {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    white-space: pre-wrap;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 8px;
+  }
+  .answer.refused { border-left-color: var(--amber); }
+  .answer.idle { border-left-color: var(--border); color: var(--text-dim); }
+  .refusal-note {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 12.5px;
+    color: var(--text-faint);
+    white-space: normal;
+  }
+  .cite {
+    display: inline-block;
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 0 5px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    vertical-align: 1px;
+    transition: background .1s;
+  }
+  .cite:hover { background: var(--accent); color: #fff; }
+
+  /* ── Explain button ── */
+  button.explain {
+    display: inline-flex; align-items: center; gap: 7px;
+    margin-top: 10px;
+    padding: 9px 16px;
+    border: 1px solid var(--border-lit);
+    border-radius: 8px;
+    background: var(--panel);
+    color: var(--text-dim);
+    font: inherit; font-size: 13px;
+    cursor: pointer;
+    transition: border-color .12s, color .12s;
+  }
+  button.explain:hover:not(:disabled) { border-color: var(--accent); color: var(--text); }
+  button.explain:disabled { opacity: .45; cursor: default; }
+
+  /* ── Weak note ── */
+  .weak-note {
+    background: #f59e0b0c;
+    border: 1px solid #f59e0b22;
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    color: var(--amber);
+    font-size: 13px;
+  }
+
+  /* ── Empty / setup state ── */
+  .empty-state {
+    background: var(--panel);
+    border: 1px dashed var(--border-lit);
+    border-radius: var(--radius);
+    padding: 28px 22px;
+    color: var(--text-faint);
+    font-size: 13.5px;
+    text-align: center;
+    line-height: 1.7;
+  }
+  .setup-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-top: 20px;
+  }
+  .setup-card h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .step {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+  .step-num {
+    flex: none;
+    width: 22px; height: 22px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 11px; font-weight: 700;
+    margin-top: 1px;
+  }
+  .code-block {
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 6px;
-    padding: 3px 9px;
-    font-size: 12.5px;
-    color: var(--text-dim);
+    padding: 8px 12px;
+    font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+    font-size: 12px;
+    color: var(--text);
+    margin-top: 6px;
+    word-break: break-all;
   }
-  .source .play { flex: none; color: var(--accent); font-size: 12px; }
 
-  /* ---------- player ---------- */
+  /* ── Player ── */
   .player-col { position: sticky; top: 24px; }
   #playerWrap {
     background: var(--panel);
@@ -265,131 +355,65 @@
   #playerBox iframe { width: 100%; height: 100%; border: 0; display: block; }
   .placeholder {
     height: 100%;
-    display: grid; place-items: center; align-content: center; gap: 10px;
+    display: grid; place-items: center; align-content: center; gap: 8px;
     padding: 26px; text-align: center;
-    color: var(--text-faint); font-size: 14px;
+    color: var(--text-faint); font-size: 13px;
   }
-  .placeholder .big { font-size: 30px; opacity: .35; }
+  .placeholder-icon {
+    width: 40px; height: 40px;
+    background: var(--panel-2);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    margin: 0 auto 4px;
+  }
   #nowPlaying {
-    padding: 12px 15px;
-    font-size: 13px;
+    padding: 10px 14px;
+    font-size: 12.5px;
     color: var(--text-dim);
     border-top: 1px solid var(--border);
-    display: flex; align-items: center; gap: 9px;
+    display: flex; align-items: center; gap: 8px;
   }
-  #nowPlaying .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-faint); flex: none; }
-  #nowPlaying.live .dot { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-faint); flex: none; }
+  #nowPlaying.live .dot { background: var(--green); box-shadow: 0 0 6px var(--green); }
 
-  /* ---------- loading shimmer ---------- */
+  /* ── Skeleton ── */
   .shimmer { position: relative; overflow: hidden; }
   .shimmer::after {
     content: "";
     position: absolute; inset: 0;
-    background: linear-gradient(90deg, transparent, #ffffff0a, transparent);
-    animation: sweep 1.3s infinite;
+    background: linear-gradient(90deg, transparent, #ffffff06, transparent);
+    animation: sweep 1.4s infinite;
   }
-  @keyframes sweep { to { transform: translateX(100%); } }
-  .skel { height: 13px; border-radius: 5px; background: var(--panel-2); margin-bottom: 10px; }
-  .skel:last-child { width: 62%; margin-bottom: 0; }
-
-  .empty-state {
-    background: var(--panel);
-    border: 1px dashed var(--border);
+  @keyframes sweep { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+  .skel {
+    height: 60px;
     border-radius: var(--radius);
-    padding: 24px 20px;
-    color: var(--text-faint);
-    text-align: center;
-  }
-  .result {
-    display: grid;
-    grid-template-columns: 26px 1fr auto;
-    gap: 4px 13px;
-    width: 100%;
-    text-align: left;
     background: var(--panel);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 13px 15px;
-    margin-bottom: 9px;
-    color: var(--text);
-    font: inherit;
-    cursor: pointer;
-    transition: all .15s;
+    margin-bottom: 8px;
   }
-  .result:hover { border-color: var(--accent); background: var(--panel-2); transform: translateX(2px); }
-  .result.active { border-color: var(--accent); background: var(--panel-2); }
-  .result .n {
-    grid-row: 1;
-    width: 26px; height: 26px;
-    display: grid; place-items: center;
-    background: var(--accent-dim); color: var(--accent);
-    border-radius: 7px; font-size: 12px; font-weight: 700;
-  }
-  .result .title {
-    grid-row: 1;
-    font-size: 14.5px; font-weight: 550;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-  .result .at {
-    grid-row: 1;
-    font-variant-numeric: tabular-nums;
-    background: var(--accent); color: #fff;
-    border-radius: 6px; padding: 3px 10px;
-    font-size: 12.5px; font-weight: 650;
-  }
-  .result .preview {
-    grid-column: 2 / 4; grid-row: 2;
-    color: var(--text-faint); font-size: 13px; line-height: 1.5;
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .weak-note {
-    background: #d9a4410f;
-    border: 1px solid #d9a44133;
-    border-radius: 10px;
-    padding: 12px 15px;
-    margin-bottom: 12px;
-    color: var(--amber);
-    font-size: 13.5px;
-  }
-  button.explain {
-    display: inline-flex; align-items: center; gap: 8px;
-    margin-top: 6px;
-    padding: 10px 18px;
-    border: 1px solid var(--border-lit);
-    border-radius: 9px;
-    background: var(--panel);
-    color: var(--text-dim);
-    font: inherit; font-size: 14px;
-    cursor: pointer;
-    transition: all .15s;
-  }
-  button.explain:hover:not(:disabled) { border-color: var(--accent); color: var(--text); }
-  button.explain:disabled { opacity: .55; cursor: default; }
+
+  /* ── Footer ── */
   footer {
     border-top: 1px solid var(--border);
-    padding: 22px 24px 34px;
+    padding: 20px 32px 28px;
     text-align: center;
     color: var(--text-faint);
-    font-size: 13px;
+    font-size: 12px;
   }
-  footer a { color: var(--text-dim); }
 </style>
 </head>
 <body>
 
 <header>
   <div class="header-inner">
-    <div class="brand">Lecture Search</div>
-    <h1>Find the exact second I explained <em>anything</em>.</h1>
-    <p class="tagline">
-      Ask any DSA doubt in Hinglish or English. You get an answer built only from what
-      was actually said in the lectures — and links that jump straight to that moment.
-    </p>
+    <div class="brand"><span class="brand-dot"></span>Lecture Search</div>
+    <h1>Find the exact second it was <span>explained</span>.</h1>
+    <p class="tagline">Ask any question in plain English. Get timestamped answers sourced directly from indexed lectures — no hallucination.</p>
     <div class="stats">
-      <span><b id="statLectures">—</b> lectures</span>
-      <span><b id="statHours">—</b> hours indexed</span>
-      <span><b id="statChunks">—</b> searchable moments</span>
+      <span class="stat-pill"><b id="statLectures">—</b>&nbsp;lectures</span>
+      <span class="stat-pill"><b id="statHours">—</b>&nbsp;hours indexed</span>
+      <span class="stat-pill"><b id="statChunks">—</b>&nbsp;searchable moments</span>
     </div>
   </div>
 </header>
@@ -397,31 +421,63 @@
 <main>
   <section>
     <form id="askForm">
-      <div class="search">
-        <select id="playlistSelect" style="background:transparent; color:var(--text); border:none; outline:none; font:inherit; cursor:pointer; min-width:120px;">
-           <option value="">All Playlists</option>
-        </select>
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-          <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
-        </svg>
+      <div class="search-wrap">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
         <input id="q" type="text" maxlength="500" autocomplete="off" autofocus
-               placeholder="memoization aur tabulation ka difference kahan explain kiya hai?" />
-        <button class="ask" id="askBtn" type="submit">Ask</button>
+               placeholder="Ask anything covered in the lectures…" />
+        <button class="search-btn" id="askBtn" type="submit">Search</button>
       </div>
     </form>
 
-    <div class="examples" id="examples"></div>
-
-    <div class="label" id="resultsLabel">Where this was explained</div>
+    <div class="section-label" id="resultsLabel">Results</div>
     <div id="results" class="empty-state">
-      Ask a question and the exact moments appear here. Click any one to play it.
+      Search above to find the exact moments from indexed lectures.
     </div>
 
     <div id="explainWrap" hidden>
       <button class="explain" id="explainBtn" type="button">
-        <span></span> Summarise these in one paragraph
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8v4l3 3"/></svg>
+        Generate AI summary
       </button>
       <div id="answer" hidden></div>
+    </div>
+
+    <!-- Setup instructions shown when index is empty -->
+    <div id="setupCard" class="setup-card" hidden>
+      <h3>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        No lectures indexed yet
+      </h3>
+      <p style="font-size:13px; color:var(--text-dim); margin-bottom:16px;">
+        This app searches content that has been ingested locally and pushed to your Qdrant index. To get started, run the following commands in your terminal:
+      </p>
+      <div class="step">
+        <span class="step-num">1</span>
+        <div>
+          <strong style="color:var(--text);">Clone the repo and install dependencies</strong>
+          <div class="code-block">git clone https://github.com/Shashank17singh/YoutubeScrapper && cd YoutubeScrapper<br>uv sync</div>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">2</span>
+        <div>
+          <strong style="color:var(--text);">Copy .env.example and fill in your API keys</strong>
+          <div class="code-block">cp .env.example .env</div>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">3</span>
+        <div>
+          <strong style="color:var(--text);">Ingest a YouTube playlist</strong>
+          <div class="code-block">uv run ytrag ingest --playlist "https://youtube.com/playlist?list=YOUR_PLAYLIST_ID"</div>
+        </div>
+      </div>
+      <div class="step" style="margin-bottom:0;">
+        <span class="step-num">4</span>
+        <div>
+          <strong style="color:var(--text);">Search instantly once done — no restart needed</strong>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -429,8 +485,10 @@
     <div id="playerWrap">
       <div id="playerBox">
         <div class="placeholder">
-          <div class="big"></div>
-          <div>Click any timestamp and the lecture starts playing here,<br>at that exact second.</div>
+          <div class="placeholder-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </div>
+          <div>Click any result to play<br>from that exact moment.</div>
         </div>
       </div>
       <div id="nowPlaying"><span class="dot"></span><span id="nowText">No lecture loaded</span></div>
@@ -439,70 +497,42 @@
 </main>
 
 <footer>
-  Answers come only from the lectures. If a topic wasn't covered, it says so rather than guessing.
+  Answers are grounded in indexed lecture content only. If a topic was not covered, the app says so.
 </footer>
 
 <script src="https://www.youtube.com/iframe_api"></script>
 <script>
-const EXAMPLES = [
-  "memoization aur tabulation ka difference",
-  "sliding window kab use kare",
-  "number of islands kaise solve kare",
-  "dijkstra kaise kaam karta hai",
-  "aggressive cows problem",
-  "recursion ka template",
-];
-
 const $ = (id) => document.getElementById(id);
 const form = $("askForm"), input = $("q"), askBtn = $("askBtn");
 const resultsEl = $("results");
 const nowText = $("nowText"), nowPlaying = $("nowPlaying");
 
 // ---------- stats ----------
-fetch("/meta").then(r => r.json()).then(m => {
-  $("statLectures").textContent = m.lectures;
-  $("statHours").textContent = m.hours;
-}).catch(() => {});
-fetch("/stats").then(r => r.json()).then(s => {
-  $("statChunks").textContent = (s.chunks || 0).toLocaleString();
-}).catch(() => {});
+Promise.all([
+  fetch("/meta").then(r => r.json()).catch(() => ({})),
+  fetch("/stats").then(r => r.json()).catch(() => ({})),
+]).then(([m, s]) => {
+  const lectures = m.lectures ?? 0;
+  const hours = m.hours ?? 0;
+  const chunks = s.chunks ?? 0;
+  $("statLectures").textContent = lectures;
+  $("statHours").textContent = hours;
+  $("statChunks").textContent = chunks.toLocaleString();
 
-// ---------- example chips ----------
-EXAMPLES.forEach(text => {
-  const b = document.createElement("button");
-  b.className = "chip"; b.type = "button"; b.textContent = text;
-  b.onclick = () => { input.value = text; form.requestSubmit(); };
-  $("examples").appendChild(b);
+  // Show setup instructions if nothing is indexed
+  if (chunks === 0) {
+    $("setupCard").hidden = false;
+    resultsEl.textContent = "No content indexed yet. Follow the steps below to get started.";
+  }
 });
 
-// ---------- fetch playlists ----------
-fetch("/playlists").then(r => r.json()).then(data => {
-  const select = $("playlistSelect");
-  (data.playlists || []).forEach(id => {
-    if (!id) return;
-    const opt = document.createElement("option");
-    opt.value = id;
-    opt.textContent = id;
-    select.appendChild(opt);
-  });
-}).catch(() => {});
-
 // ---------- YouTube player ----------
-let player = null;          // created lazily, on the first jump
-let apiReady = false;       // the IFrame API script has loaded
-let apiBlocked = false;     // ...or an extension stopped it arriving
-let pending = null;         // a jump requested before either was true
-let currentVideo = null;
+let player = null, apiReady = false, apiBlocked = false, pending = null, currentVideo = null;
 
-// The API calls this global itself once it has loaded.
 function onYouTubeIframeAPIReady() {
   apiReady = true;
   if (pending) { const p = pending; pending = null; jump(p.v, p.s, p.t, p.el); }
 }
-
-// Ad and privacy blockers commonly block youtube.com/iframe_api outright. If
-// it has not arrived after a few seconds, say so instead of silently queuing
-// clicks that will never fire.
 setTimeout(() => {
   if (!apiReady) {
     apiBlocked = true;
@@ -516,17 +546,11 @@ function openOnYouTube(videoId, seconds) {
 }
 
 function jump(videoId, seconds, title, el) {
-  // Queue until the API script is in. It loads from youtube.com, so on a slow
-  // connection the first click can easily beat it.
   if (apiBlocked) { openOnYouTube(videoId, seconds); return; }
   if (!apiReady) { pending = { v: videoId, s: seconds, t: title, el }; return; }
-
   if (!player) {
-    // Create the player WITH the video. Constructing an empty YT.Player builds
-    // an iframe pointing at an invalid embed URL, and every later
-    // loadVideoById on it fails silently.
     player = new YT.Player("playerBox", {
-      videoId: videoId,
+      videoId,
       playerVars: { rel: 0, modestbranding: 1, playsinline: 1, start: Math.floor(seconds), autoplay: 1 },
       events: {
         onReady: (e) => e.target.playVideo(),
@@ -535,72 +559,62 @@ function jump(videoId, seconds, title, el) {
     });
     currentVideo = videoId;
   } else if (currentVideo === videoId) {
-    player.seekTo(seconds, true);       // same lecture: instant in-page seek
+    player.seekTo(seconds, true);
     player.playVideo();
   } else {
-    player.loadVideoById({ videoId: videoId, startSeconds: seconds });
+    player.loadVideoById({ videoId, startSeconds: seconds });
     currentVideo = videoId;
   }
-
   nowText.textContent = `${title} — ${fmt(seconds)}`;
   nowPlaying.classList.add("live");
   document.querySelectorAll(".result.active").forEach(n => n.classList.remove("active"));
   if (el) el.classList.add("active");
-  if (window.innerWidth <= 940) {
-    document.getElementById("playerWrap").scrollIntoView({ behavior: "smooth", block: "center" });
+  if (window.innerWidth <= 900) {
+    $("playerWrap").scrollIntoView({ behavior: "smooth", block: "center" });
   }
 }
 
-// Embedding can be blocked per-video, and extensions block the iframe outright.
-// Either way, give the viewer a working link rather than a dead black box.
 function showPlayerError(videoId, seconds, code) {
   const url = `https://www.youtube.com/watch?v=${videoId}&t=${Math.floor(seconds)}s`;
-  nowText.innerHTML = `Can't play here (error ${code}). `
-    + `<a href="${url}" target="_blank" rel="noopener" style="color:var(--accent)">Open on YouTube </a>`;
+  nowText.innerHTML = `Cannot embed this video. <a href="${url}" target="_blank" rel="noopener" style="color:var(--accent)">Open on YouTube →</a>`;
   nowPlaying.classList.remove("live");
 }
 
 function fmt(t) {
   t = Math.max(0, Math.floor(t));
   const h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = t % 60;
-  const mm = String(m).padStart(2, "0"), ss = String(s).padStart(2, "0");
-  return h ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
+  return h ? `${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}` : `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
 }
 
-// ---------- search (no LLM: instant, free, unlimited) ----------
+// ---------- search ----------
 let lastQuery = "";
-
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const question = input.value.trim();
   if (!question) return;
   lastQuery = question;
 
-  askBtn.disabled = true; askBtn.textContent = "…";
+  askBtn.disabled = true; askBtn.textContent = "Searching…";
   $("explainWrap").hidden = true;
   $("answer").hidden = true;
+  $("setupCard").hidden = true;
   resultsEl.className = "shimmer";
-  resultsEl.innerHTML = '<div class="skel" style="height:58px"></div>'
-                      + '<div class="skel" style="height:58px"></div>'
-                      + '<div class="skel" style="height:58px"></div>';
+  resultsEl.innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
 
   try {
     const res = await fetch("/search", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        question, 
-        playlist_id: $("playlistSelect").value || undefined 
-      })
+      body: JSON.stringify({ question }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || `Something went wrong (${res.status})`);
+    if (!res.ok) throw new Error(data.detail || `Error ${res.status}`);
     renderResults(data);
   } catch (err) {
     resultsEl.className = "empty-state";
     resultsEl.textContent = String(err.message || err);
   } finally {
-    askBtn.disabled = false; askBtn.textContent = "Ask";
+    askBtn.disabled = false; askBtn.textContent = "Search";
   }
 });
 
@@ -608,57 +622,45 @@ function renderResults(data) {
   const results = data.results || [];
   resultsEl.className = "";
   resultsEl.innerHTML = "";
-
   if (!results.length) {
     resultsEl.className = "empty-state";
-    resultsEl.textContent = "Nothing in the lectures matches this. It probably isn't covered in the DSA series.";
+    resultsEl.textContent = "No results found. This topic may not be covered in the indexed lectures.";
     return;
   }
-
-  // Weak top match: show the results anyway, but say so. A ranked list the
-  // student can dismiss at a glance beats a confident wrong sentence.
   if (!data.confident) {
     const note = document.createElement("div");
     note.className = "weak-note";
-    note.textContent = "No strong match — these are the closest moments, but this topic may not be covered directly.";
+    note.textContent = "Low confidence — these are the closest matches, but this topic may not be covered directly.";
     resultsEl.appendChild(note);
   }
-
   results.forEach((r, i) => {
     const b = document.createElement("button");
     b.className = "result"; b.type = "button";
-    b.innerHTML = `<span class="n">${i + 1}</span><span class="title"></span>`
-                + `<span class="at">${r.timestamp}</span><span class="preview"></span>`;
-    b.querySelector(".title").textContent = r.title;
+    b.innerHTML = `<span class="n">${i + 1}</span><span class="vtitle"></span><span class="at">${r.timestamp}</span><span class="preview"></span>`;
+    b.querySelector(".vtitle").textContent = r.title;
     b.querySelector(".preview").textContent = r.preview;
     b.onclick = () => jump(r.video_id, r.start_sec, r.title, b);
     resultsEl.appendChild(b);
   });
-
-  // Autoplay the best match so the page does something immediately.
   jump(results[0].video_id, results[0].start_sec, results[0].title, resultsEl.querySelector(".result"));
-
   $("explainWrap").hidden = false;
   $("explainBtn").disabled = false;
-  $("explainBtn").innerHTML = "<span></span> Summarise these in one paragraph";
+  $("explainBtn").innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8v4l3 3"/></svg> Generate AI summary';
 }
 
-// ---------- optional AI summary ----------
+// ---------- AI summary ----------
 $("explainBtn").addEventListener("click", async () => {
   const btn = $("explainBtn"), answerEl = $("answer");
-  btn.disabled = true; btn.innerHTML = "<span></span> Writing…";
+  btn.disabled = true;
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8v4l3 3"/></svg> Generating…';
   answerEl.hidden = false;
   answerEl.className = "answer idle shimmer";
-  answerEl.innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
-
+  answerEl.innerHTML = '<div class="skel" style="height:14px;margin-bottom:8px"></div><div class="skel" style="height:14px;width:80%;margin-bottom:8px"></div><div class="skel" style="height:14px;width:60%"></div>';
   try {
     const res = await fetch("/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        question: lastQuery,
-        playlist_id: $("playlistSelect").value || undefined
-      })
+      body: JSON.stringify({ question: lastQuery }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || `Error ${res.status}`);
@@ -668,7 +670,7 @@ $("explainBtn").addEventListener("click", async () => {
     answerEl.className = "answer refused";
     answerEl.textContent = String(err.message || err);
     btn.disabled = false;
-    btn.innerHTML = "<span></span> Try again";
+    btn.innerHTML = 'Try again';
   }
 });
 
@@ -677,7 +679,6 @@ function renderAnswer(result) {
   const citations = result.citations || [];
   answerEl.className = "answer" + (result.grounded ? "" : " refused");
   answerEl.innerHTML = "";
-
   result.answer.split(/(\[\d+\])/g).forEach(part => {
     const m = part.match(/^\[(\d+)\]$/);
     const c = m ? citations[Number(m[1]) - 1] : null;
@@ -692,12 +693,10 @@ function renderAnswer(result) {
       answerEl.appendChild(document.createTextNode(part));
     }
   });
-
   if (!result.grounded) {
     const note = document.createElement("div");
     note.className = "refusal-note";
-    note.textContent = "The lectures didn't cover this closely enough to summarise, so it won't guess. "
-      + "The timestamps above are still the closest moments found.";
+    note.textContent = "The indexed lectures did not cover this topic closely enough to generate a grounded summary.";
     answerEl.appendChild(note);
   }
 }
