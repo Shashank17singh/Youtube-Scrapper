@@ -1,6 +1,6 @@
 <div align="center">
 
-#  YoutubeScrapper - Timestamp-Level RAG over DSA Lectures
+#  Youtube-Scrapper - Timestamp-Level RAG over DSA Lectures
 
 **Ask any DSA question in Hinglish or English and get an answer plus a clickable link that jumps to the exact second it was explained in the lecture**
 
@@ -86,7 +86,7 @@ graph TD
 ##  Project Structure
 
 ```
-YoutubeScrapper/
+Youtube-Scrapper/
 ├── ytrag/
 │   ├── config.py        # All tunables, env-driven
 │   ├── playlist.py      # Playlist listing + audio download
@@ -130,8 +130,8 @@ Runtime data lives outside the repo in `~/.ytrag/`:
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/Shashank17singh/YoutubeScrapper.git
-cd YoutubeScrapper
+git clone https://github.com/Shashank17singh/Youtube-Scrapper.git
+cd Youtube-Scrapper
 ```
 
 ### 2. Install dependencies
