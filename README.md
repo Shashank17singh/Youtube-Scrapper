@@ -16,7 +16,7 @@
 
 ##  Overview
 
-A Retrieval-Augmented Generation system built over any number of YouTube playlists. A student asks a question across selected playlists - the system finds the exact moment in the exact lecture where it was explained, and returns a grounded answer with a clickable timestamp link that seeks the embedded player to that second.
+Built following a project-based AI engineering curriculum, a Retrieval-Augmented Generation system over YouTube playlists. A student asks a question across selected playlists - the system finds the exact moment in the exact lecture where it was explained, and returns a grounded answer with a clickable timestamp link that seeks the embedded player to that second.
 
 Every generic RAG demo returns a blob of text. This returns *a place in a video*.
 
