@@ -30,11 +30,11 @@ graph TD
     A[YouTube Playlist] -->|yt-dlp| B(Audio Download)
     B -->|faster-whisper large-v3| C[Transcript + Timestamps]
     C -->|Time-window Chunking| D(Chunks with start_sec)
-    D -->|BAAI/bge-m3 Embeddings| E[(Qdrant Cloud)]
+    D -->|Gemini text-embedding-004| E[(Qdrant Cloud)]
     end
 
     subgraph "Query Pipeline"
-    F[Student Question] -->|bge-m3 Embed| G(Query Vector)
+    F[Student Question] -->|Gemini text-embedding-004| G(Query Vector)
     G -->|Similarity Search| E
     E -->|Top-K Chunks| H{Distance Guard}
     H -->|Too far| I[Refusal: cover nahi hua]
@@ -58,7 +58,7 @@ graph TD
 |---|---|
 |  **Timestamp-Level Retrieval** | Citations link to the exact second in the exact lecture - clicking `[2]` seeks the embedded player in-page |
 |  **Grounded Answers Only** | Three guards prevent hallucination: distance cutoff, model self-refusal, and citation-presence check |
-|  **Hinglish + English** | `BAAI/bge-m3` handles code-switched queries natively |
+|  **Hinglish + English** | `text-embedding-004` handles code-switched queries natively |
 |  **Batched Transcription** | `faster-whisper` with batch=8 achieves 8x realtime on a GPU - 3x faster than sequential |
 |  **Fully Resumable** | Cached transcripts + idempotent upserts mean re-runs skip all completed work |
 |  **Fault-Tolerant Ingest** | One failing video logs and continues; network retries with exponential backoff |
@@ -74,7 +74,7 @@ graph TD
 | Playlist + Audio | `yt-dlp` (Python API) |
 | Transcription | `faster-whisper` - `large-v3`, batched, CUDA |
 | Chunking | Custom time-window chunker (timestamps preserved) |
-| Embeddings | `sentence-transformers` + `BAAI/bge-m3` (1024-dim) |
+| Embeddings | Google Gemini API - `text-embedding-004` (768-dim) |
 | Vector Store | Qdrant Cloud |
 | LLM | Groq - `openai/gpt-oss-120b` |
 | API + UI | `FastAPI` + single HTML page with YouTube IFrame API |
@@ -123,6 +123,7 @@ Runtime data lives outside the repo in `~/.ytrag/`:
 
 - Python 3.11
 - A [Groq API key](https://console.groq.com/keys) (free)
+- A [Gemini API key](https://aistudio.google.com/) (free - required for embeddings)
 - A [Qdrant Cloud](https://cloud.qdrant.io/) cluster (free tier)
 - GPU recommended for transcription (falls back to CPU automatically)
 - [`uv`](https://docs.astral.sh/uv/) installed
@@ -148,6 +149,7 @@ uv sync --extra cuda
 cp .env.example .env
 # Edit .env and fill in:
 # GROQ_API_KEY=...
+# GEMINI_API_KEY=...
 # QDRANT_URL=...
 # QDRANT_API_KEY=...
 ```
@@ -198,7 +200,7 @@ All tunables are env-driven. Defaults live in [`ytrag/config.py`](ytrag/config.p
 | `YTRAG_WHISPER_MODEL` | `large-v3` | `medium` if you're impatient |
 | `YTRAG_WHISPER_BATCH` | `8` | Batched inference - `0` to disable |
 | `YTRAG_CHUNK_SECONDS` | `75` | ~one explained idea per chunk |
-| `YTRAG_EMBED_MODEL` | `BAAI/bge-m3` | `all-MiniLM-L6-v2` for a free deploy tier |
+| `YTRAG_EMBED_MODEL` | `text-embedding-004` | Uses Google Gemini API for lightweight cloud deploy |
 | `YTRAG_TOP_K` | `6` | Retrieved chunks per query |
 | `YTRAG_MAX_DISTANCE` | `0.5` | Grounding cutoff - tune with `ytrag eval` |
 | `YTRAG_LLM_MODEL` | `openai/gpt-oss-120b` | |
@@ -208,5 +210,5 @@ All tunables are env-driven. Defaults live in [`ytrag/config.py`](ytrag/config.p
 ##  Known Limitations
 
 - Transcription requires a decent GPU for the full playlist (~8.5 hours on an RTX GPU). The committed transcripts skip this step for everyone else.
-- `BAAI/bge-m3` is 2.2 GB - swap to `all-MiniLM-L6-v2` for free-tier deployment (`uv run ytrag reindex` after changing the env var).
+- The system uses cloud embeddings (`text-embedding-004`) to keep memory footprint under 512MB for free-tier deployments.
 - The local Qdrant index allows a single process - stop `ytrag serve` before running `ytrag ask` in another terminal, or point `QDRANT_URL` at a hosted cluster.
