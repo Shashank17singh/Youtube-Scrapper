@@ -13,7 +13,7 @@ prebuilt search index. You need one free API key and about three minutes.
 
 ```bash
 git clone <REPO_URL>
-cd ytscraper
+cd week3/ytscraper
 uv sync
 ```
 
@@ -136,7 +136,7 @@ cannot intercept, which is why it survives.
 | `GROQ_API_KEY is not set` | `.env` missing, or you are in the wrong folder |
 | `These vectors were built with…` | your `YTRAG_EMBED_MODEL` differs from the shipped index; unset it, or `reindex` |
 | `already open in another process` | stop `ytrag serve` first |
-| `No prebuilt index found` | run from `ytscraper`, or use `ytrag reindex` |
+| `No prebuilt index found` | run from `week3/ytscraper`, or use `ytrag reindex` |
 | LLM quota errors | free tiers are limited; `ytrag search` needs no LLM at all |
 
 ---
