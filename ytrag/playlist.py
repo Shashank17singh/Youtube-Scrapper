@@ -2,8 +2,6 @@
 
 from pathlib import Path
 
-import yt_dlp
-
 from ytrag.config import (
     AUDIO_DIR,
     COOKIES_FILE,
@@ -48,6 +46,8 @@ def list_playlist(playlist_url: str) -> list[Video]:
     `extract_flat` is deliberate: without it yt-dlp resolves each video
     individually, so a 40-video playlist becomes 40 round trips.
     """
+    import yt_dlp
+
     opts = {**_QUIET, "extract_flat": "in_playlist", "skip_download": True}
     with yt_dlp.YoutubeDL(opts) as ydl:
         info = ydl.extract_info(playlist_url, download=False)
@@ -100,6 +100,7 @@ def download_audio(video: Video, force: bool = False) -> Path:
     opts.update(_cookie_opts())
 
     def _download():
+        import yt_dlp
         with yt_dlp.YoutubeDL(opts) as ydl:
             ydl.download([video.url])
 
