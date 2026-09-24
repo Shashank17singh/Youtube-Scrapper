@@ -2,8 +2,13 @@
 
 import uuid
 from dataclasses import dataclass
+
 from ytrag.config import LINK_REWIND_SECONDS
 
+# Fixed namespace so the same chunk_id always produces the same Qdrant point
+# ID. Qdrant only accepts UUIDs or unsigned ints as point IDs, so the readable
+# "videoid:735" chunk_id gets hashed into a UUID - deterministically, which is
+# what makes re-ingesting an upsert instead of a duplicate.
 _NAMESPACE = uuid.UUID("6f9619ff-8b86-d011-b42d-00c04fc964ff")
 
 
@@ -21,8 +26,7 @@ def format_timestamp(seconds: int) -> str:
 class Video:
     video_id: str
     title: str
-    duration: int = 0
-    playlist_id: str = ""
+    duration: int = 0  # seconds
 
     @property
     def url(self) -> str:
@@ -46,13 +50,12 @@ class Segment:
 class Chunk:
     """What actually gets embedded. Several segments merged into a time window."""
 
-    chunk_id: str
+    chunk_id: str  # f"{video_id}:{start_sec}" - stable across re-ingest
     video_id: str
     video_title: str
     start_sec: int
     end_sec: int
     text: str
-    playlist_id: str = ""
 
     @property
     def point_id(self) -> str:
@@ -80,7 +83,6 @@ class Chunk:
             "start_sec": self.start_sec,
             "end_sec": self.end_sec,
             "text": self.text,
-            "playlist_id": self.playlist_id,
         }
 
     @classmethod
@@ -92,5 +94,4 @@ class Chunk:
             start_sec=int(payload["start_sec"]),
             end_sec=int(payload["end_sec"]),
             text=payload["text"],
-            playlist_id=payload.get("playlist_id", ""),
         )
