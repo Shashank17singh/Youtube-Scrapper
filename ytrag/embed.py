@@ -84,12 +84,48 @@ class SentenceTransformerEmbedder:
         return vector.tolist()
 
 
+class FastEmbedder:
+    """Lightweight embeddings using fastembed. Great for low-memory deployment."""
+
+    def __init__(self, model_name: str = EMBED_MODEL, batch_size: int = EMBED_BATCH):
+        from fastembed import TextEmbedding
+
+        self.name = model_name
+        self.batch_size = batch_size
+        
+        # fastembed model names often include the vendor prefix
+        fastembed_model = model_name
+        if model_name == "all-MiniLM-L6-v2":
+            fastembed_model = "sentence-transformers/all-MiniLM-L6-v2"
+            
+        with _quiet_load():
+            self.model = TextEmbedding(fastembed_model)
+        
+        # Infer dimension by embedding a dummy text
+        dummy = list(self.model.embed(["test"]))[0]
+        self.dim = len(dummy)
+
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        if not texts:
+            return []
+        vectors = list(self.model.embed(texts, batch_size=self.batch_size))
+        return [v.tolist() for v in vectors]
+
+    def embed_query(self, text: str) -> list[float]:
+        vector = list(self.model.embed([EMBED_QUERY_PREFIX + text]))[0]
+        return vector.tolist()
+
+
 _EMBEDDER: Embedder | None = None
 
 
 def get_embedder() -> Embedder:
-    """Load the embedder once per process - the model is 2.2GB."""
+    """Load the embedder once per process. Uses fastembed if available to save memory."""
     global _EMBEDDER
     if _EMBEDDER is None:
-        _EMBEDDER = SentenceTransformerEmbedder()
+        try:
+            import fastembed
+            _EMBEDDER = FastEmbedder()
+        except ImportError:
+            _EMBEDDER = SentenceTransformerEmbedder()
     return _EMBEDDER
