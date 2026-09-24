@@ -31,19 +31,20 @@ from ytrag import config
 from ytrag.answer import answer as answer_question
 from ytrag.answer import retrieve_only
 from ytrag.chunk import chunk_segments
-from ytrag.evaluate import DEFAULT_GOLDEN, run_eval
 from ytrag.embed import get_embedder
+from ytrag.evaluate import DEFAULT_GOLDEN, run_eval
 from ytrag.index import (
     delete_video,
     ensure_collection,
     get_client,
     indexed_video_ids,
-    stats as index_stats,
     upsert_chunks,
+)
+from ytrag.index import (
+    stats as index_stats,
 )
 from ytrag.models import Video, format_timestamp
 from ytrag.playlist import download_audio, list_playlist
-from ytrag.util import network_up, wait_for_network
 from ytrag.transcribe import (
     cached_video_ids,
     get_model,
@@ -53,6 +54,7 @@ from ytrag.transcribe import (
     transcribe,
     transcript_path,
 )
+from ytrag.util import network_up, wait_for_network
 
 # Windows consoles still default to cp1252, which cannot encode the box-drawing
 # and arrow characters rich uses - output crashes with UnicodeEncodeError partway

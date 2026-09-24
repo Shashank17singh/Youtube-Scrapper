@@ -10,9 +10,9 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
-from groq import APIStatusError, RateLimitError
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from groq import APIStatusError, RateLimitError
 from pydantic import BaseModel, Field
 
 from ytrag import config
@@ -96,7 +96,7 @@ def ask(payload: AskRequest, request: Request):
     _rate_limit(request)
     try:
         return answer_question(payload.question, top_k=payload.top_k)
-    except RateLimitError as exc:
+    except RateLimitError:
         # The LLM provider's own quota, not ours. Surfacing this as a 500 tells
         # the student nothing; they need to know it is temporary and whose
         # limit it is.
