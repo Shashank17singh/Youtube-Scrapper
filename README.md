@@ -2,7 +2,7 @@
 
 # Youtube-Scrapper
 
-**Retrieval over a YouTube playlist. A student asks a question in plain English and gets an answer plus clickable links that jump to the exact second in the exact video.**
+**Retrieval over a YouTube playlist. A student asks a question and gets an answer plus clickable links that jump to the exact second in the exact video.**
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Groq](https://img.shields.io/badge/Groq-openai--gpt--oss--120b-F55036?style=for-the-badge&logoColor=white)](https://groq.com/)
