@@ -21,7 +21,6 @@ from ytrag.config import (
     GROQ_MODEL,
     LLM_BACKEND,
     LLM_MODEL,
-    MAX_DISTANCE,
     REFUSAL,
     TOP_K,
 )

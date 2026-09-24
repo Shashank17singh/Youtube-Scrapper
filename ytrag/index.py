@@ -33,7 +33,7 @@ from ytrag.config import (
     UPSERT_BATCH,
 )
 from ytrag.embed import get_embedder
-from ytrag.models import Chunk, _NAMESPACE
+from ytrag.models import _NAMESPACE, Chunk
 from ytrag.util import with_retry
 
 _CLIENT: QdrantClient | None = None
@@ -145,7 +145,7 @@ def upsert_chunks(chunks: list[Chunk], batch_size: int = UPSERT_BATCH) -> int:
         # the middle of a long unattended run. Upsert is idempotent, so a
         # retry after a partial success is harmless.
         with_retry(
-            lambda: client.upsert(collection_name=name, points=points, wait=True),
+            lambda points=points: client.upsert(collection_name=name, points=points, wait=True),
             label=f"upsert {len(points)} points",
         )
         total += len(points)
