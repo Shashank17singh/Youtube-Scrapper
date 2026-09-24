@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir \
     "uvicorn>=0.52.1" \
     "pydantic>=2.13.4" \
     "google-genai>=2.19.0" \
-    "sentence-transformers>=3.0.0" \
+    "fastembed>=0.3.0" \
     "numpy<2"
 
 # Provide a default PORT
