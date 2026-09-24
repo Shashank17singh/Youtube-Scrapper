@@ -304,7 +304,7 @@ def reindex(
 # ------------------------------------------------------------------
 @app.command()
 def ask(
-    question: str = typer.Argument(..., help="Your question, in English or Hinglish."),
+    question: str = typer.Argument(..., help="Your question."),
     top_k: int = typer.Option(config.TOP_K, "--top-k", "-k"),
     video: str = typer.Option("", "--video", help="Restrict to one video ID."),
 ):
@@ -531,8 +531,8 @@ def langtest(
     """Transcribe one lecture in two languages and print both, side by side.
 
     The lectures are Hinglish. language="hi" gives Devanagari; language="en"
-    gives romanised/translated output. Student queries will be romanised
-    Hinglish or English, so these two produce very different retrieval
+    gives romanised/translated output. Student queries will vary,
+    so these two produce very different retrieval
     behaviour. Read a few minutes of each and check what happens to the
     technical terms specifically - memoization, adjacency list, time
     complexity, subproblem, DP table. Whichever keeps those clean, wins.
