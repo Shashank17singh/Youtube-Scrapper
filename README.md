@@ -24,7 +24,7 @@ Developed a Retrieval-Augmented Generation (RAG) system capable of analyzing vas
 
 ```mermaid
 graph TD
-    subgraph "Ingestion Pipeline"
+    subgraph Ingestion_Pipeline [Ingestion Pipeline]
     A[YouTube Playlist] -->|yt-dlp| B(Audio Extraction)
     B -->|faster-whisper| C(Transcription & Timestamps)
     C -->|Time-Window Logic| D(Chunking)
@@ -32,7 +32,7 @@ graph TD
     E -->|Upsert| F[(Qdrant Vector Database)]
     end
     
-    subgraph "Query Engine"
+    subgraph Query_Engine [Query Engine]
     G[User Query] -->|BAAI/bge-m3| H(Query Embedding)
     H -->|Vector Search| F
     F -->|Top-K Chunks| I(LLM Generation)
@@ -40,7 +40,7 @@ graph TD
     I -->|Answers + Timestamps| J[FastAPI Backend]
     end
     
-    subgraph "User Interface"
+    subgraph User_Interface [User Interface]
     J --> K[Interactive Web UI]
     K -->|iframe API| L[YouTube Player Jump]
     end
