@@ -16,7 +16,7 @@
 
 ## Overview
 
-Engineered an AI-powered retrieval-augmented generation (RAG) system for a YouTube playlist. Students can ask questions, and the application generates a concise answer grounded in the actual videos. Most uniquely, the sources include clickable timestamps that jump straight to the exact second the concept was mentioned in the embedded YouTube player. Every generic RAG demo returns a blob of text—this returns a place in a video.
+Developed a Retrieval-Augmented Generation (RAG) system capable of analyzing vast YouTube playlists to extract grounded answers linked to precise video timestamps. Features custom BAAI/bge-m3 embeddings for Hinglish queries, an optimized Qdrant vector database, and fault-tolerant asynchronous batched video transcription utilizing Faster-Whisper.
 
 ---
 
