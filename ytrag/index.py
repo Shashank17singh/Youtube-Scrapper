@@ -75,9 +75,6 @@ def get_client() -> QdrantClient:
             try:
                 _CLIENT = QdrantClient(path=str(QDRANT_PATH))
             except RuntimeError as exc:
-                # The embedded store is a single-writer file lock, so a second
-                # command while `ytrag serve` is running fails with a message
-                # that explains nothing. Say what actually happened.
                 if "already accessed" in str(exc) or "Storage folder" in str(exc):
                     raise RuntimeError(
                         "The local index is already open in another process - most likely "
@@ -113,8 +110,6 @@ def ensure_collection() -> str:
                 distance=Distance.COSINE,
             ),
         )
-        # Only meaningful on a Qdrant server - the embedded store filters
-        # without an index and warns if you ask for one.
         if QDRANT_URL:
             client.create_payload_index(
                 collection_name=name,
@@ -141,9 +136,6 @@ def upsert_chunks(chunks: list[Chunk], batch_size: int = UPSERT_BATCH) -> int:
             PointStruct(id=c.point_id, vector=v, payload=c.to_payload())
             for c, v in zip(batch, vectors)
         ]
-        # Retried for the same reason downloads are: this is a network call in
-        # the middle of a long unattended run. Upsert is idempotent, so a
-        # retry after a partial success is harmless.
         with_retry(
             lambda points=points: client.upsert(collection_name=name, points=points, wait=True),
             label=f"upsert {len(points)} points",
@@ -194,10 +186,6 @@ def indexed_video_ids() -> set[str]:
         if offset is None:
             break
     return found
-
-
-# Words that carry no topic signal - Hinglish question scaffolding, plus the
-# boilerplate that appears in almost every lecture title.
 _STOP = {
     "kaise", "kya", "hai", "hain", "me", "ka", "ki", "ke", "aur", "kab", "karte",
     "karna", "hota", "nikale", "solve", "kare", "chahiye", "use", "kahan", "se",
@@ -248,9 +236,6 @@ def search(
         query_filter = Filter(
             must=[FieldCondition(key="video_id", match=MatchValue(value=video_id))]
         )
-
-    # Over-fetch, then re-rank. The vector search alone is a decent recall
-    # filter but a poor judge of which result belongs first.
     results = client.query_points(
         collection_name=name,
         query=vector,
@@ -266,12 +251,6 @@ def search(
         if distance > cutoff:
             continue
         chunk = Chunk.from_payload(point.payload)
-        # Nudge chunks whose lecture title actually mentions what was asked.
-        # Dense similarity over a 75-second ramble dilutes the topic badly -
-        # a chunk about ASCII values outranked the Number of Islands lecture
-        # for "number of islands" until this existed. The title is the one
-        # place the topic is stated plainly, so it gets a say in the ordering.
-        # Measured on 12 questions: top-1 accuracy 9/12 -> 12/12.
         overlap = title_overlap(query, chunk.video_title)
         scored.append((distance - TITLE_BOOST * overlap, distance, chunk))
 
@@ -315,17 +294,6 @@ def stats() -> dict:
         "embed_model": get_embedder().name,
         "videos": videos,
     }
-
-
-# ------------------------------------------------------------------
-# Shipping a prebuilt index
-# ------------------------------------------------------------------
-# Embedding 2933 chunks takes a couple of minutes on a decent CPU and rather
-# longer on a weak laptop. The vectors themselves are small - 2933 x 384
-# float16 is about 2 MB - so committing them means someone can clone the repo
-# and have a working index in seconds, without ever running the encoder over
-# the corpus. They still need the model to embed their own *queries*, which is
-# why the small one matters.
 
 def export_vectors(path: Path) -> dict:
     """Dump every point's vector and payload to a compressed .npz."""

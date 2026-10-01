@@ -19,8 +19,6 @@ from ytrag.config import (
 )
 from ytrag.models import Segment, Video
 from ytrag.playlist import delete_audio, download_audio
-
-# Loading large-v3 takes a while, so keep one instance per (model, device).
 _MODEL_CACHE: dict[tuple, object] = {}
 
 
@@ -100,10 +98,6 @@ def run_whisper(audio_path: str, language: str, model_name: str = WHISPER_MODEL)
                 vad_filter=True,
             )
         except (ImportError, AttributeError, TypeError) as exc:
-            # Only fall back when this build of faster-whisper genuinely can't
-            # batch. Catching more than that would silently drop a long run to
-            # the sequential path - four times slower - on a transient error,
-            # with nothing in the output to say why it suddenly crawled.
             print(f"[transcribe] batched pipeline unavailable ({exc}); using sequential.")
 
     return get_model(model_name).transcribe(

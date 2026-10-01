@@ -4,11 +4,6 @@ import uuid
 from dataclasses import dataclass
 
 from ytrag.config import LINK_REWIND_SECONDS
-
-# Fixed namespace so the same chunk_id always produces the same Qdrant point
-# ID. Qdrant only accepts UUIDs or unsigned ints as point IDs, so the readable
-# "videoid:735" chunk_id gets hashed into a UUID - deterministically, which is
-# what makes re-ingesting an upsert instead of a duplicate.
 _NAMESPACE = uuid.UUID("6f9619ff-8b86-d011-b42d-00c04fc964ff")
 
 

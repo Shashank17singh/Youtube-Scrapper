@@ -51,7 +51,6 @@ def chunk_segments(
         j = i
         while j < len(segments) and segments[j].end - window_start < window_seconds:
             j += 1
-        # j is one past the last segment in the window (or len(segments)).
         last = min(j, len(segments) - 1)
         body_segments = segments[i : last + 1]
 
@@ -68,26 +67,18 @@ def chunk_segments(
                     video_title=video.title,
                     start_sec=start_sec,
                     end_sec=end_sec,
-                    # Prefixing the title is a cheap trick that meaningfully
-                    # improves retrieval: a chunk from minute 34 usually never
-                    # restates which topic it belongs to.
                     text=f"{video.title}\n\n{body}",
                 )
             )
 
         if last >= len(segments) - 1:
             break
-
-        # Back up to the nearest segment boundary inside the overlap so the
-        # next window re-reads the tail of this one. Never split a segment.
         overlap_start = segments[last].end - overlap_seconds
         next_i = last + 1
         for k in range(i, last + 1):
             if segments[k].start >= overlap_start:
                 next_i = k
                 break
-        # Always make forward progress, even when one segment is longer than
-        # the whole window.
         i = max(next_i, i + 1)
 
     return chunks

@@ -31,7 +31,6 @@ def load_golden(path: str | Path = DEFAULT_GOLDEN) -> list[dict]:
         raise FileNotFoundError(f"No golden set at {path}")
     with open(path, "r", encoding="utf-8") as f:
         entries = json.load(f)
-    # Entries starting with "_" are comments/templates in the shipped file.
     return [e for e in entries if isinstance(e, dict) and not str(e.get("q", "")).startswith("_")]
 
 
@@ -46,7 +45,6 @@ def _check_retrieval(entry: dict, k: int) -> dict:
     time_hit = video_hit and around is None
     if video_hit and around is not None:
         lo, hi = around - tolerance, around + tolerance
-        # Overlap between [chunk.start, chunk.end] and [lo, hi].
         time_hit = any(
             chunk.video_id == expected_id and chunk.start_sec <= hi and chunk.end_sec >= lo
             for chunk, _ in hits
