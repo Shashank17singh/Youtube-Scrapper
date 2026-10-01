@@ -45,10 +45,6 @@ app = FastAPI(title="YT Lecture RAG", version="0.1.0", lifespan=lifespan)
 class AskRequest(BaseModel):
     question: str = Field(..., min_length=1, max_length=config.MAX_QUESTION_CHARS)
     top_k: int = Field(default=config.TOP_K, ge=1, le=20)
-
-
-# A dict of deques is enough for one process on a free tier. Behind more than
-# one worker this becomes per-worker, so move it to Redis before it matters.
 _HITS: dict[str, deque] = defaultdict(deque)
 
 
@@ -97,9 +93,6 @@ def ask(payload: AskRequest, request: Request):
     try:
         return answer_question(payload.question, top_k=payload.top_k)
     except RateLimitError:
-        # The LLM provider's own quota, not ours. Surfacing this as a 500 tells
-        # the student nothing; they need to know it is temporary and whose
-        # limit it is.
         raise HTTPException(
             status_code=429,
             detail="The language model's usage quota is exhausted. "

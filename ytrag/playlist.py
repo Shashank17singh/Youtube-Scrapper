@@ -11,10 +11,6 @@ from ytrag.config import (
 )
 from ytrag.models import Video
 from ytrag.util import with_retry
-
-# YouTube's way of saying "you are downloading too fast". Not a broken video,
-# not a dead network - a rate limit, which needs a long pause rather than the
-# usual few-second backoff.
 _BOT_MARKERS = ("not a bot", "sign in to confirm", "too many requests", "http error 429")
 
 
@@ -34,9 +30,6 @@ def _cookie_opts() -> dict:
     if COOKIES_FROM_BROWSER:
         return {"cookiesfrombrowser": (COOKIES_FROM_BROWSER,)}
     return {}
-
-# yt-dlp writes progress and warnings straight to stdout, which shreds a rich
-# progress bar. Silence it; we report progress ourselves.
 _QUIET = {"quiet": True, "no_warnings": True, "noprogress": True}
 
 
@@ -90,11 +83,8 @@ def download_audio(video: Video, force: bool = False) -> Path:
         "format": "bestaudio/best",
         "outtmpl": str(AUDIO_DIR / f"{video.video_id}.%(ext)s"),
         "overwrites": True,  # a retry must replace the partial file, not skip it
-        # Pace ourselves. Downloading 127 videos back to back is exactly the
-        # pattern YouTube's bot detection looks for.
         "sleep_interval": DOWNLOAD_SLEEP_MIN,
         "max_sleep_interval": DOWNLOAD_SLEEP_MAX,
-        # Rotating the client avoids the web client's stricter bot checks.
         "extractor_args": {"youtube": {"player_client": ["android", "web"]}},
     }
     opts.update(_cookie_opts())
@@ -103,12 +93,6 @@ def download_audio(video: Video, force: bool = False) -> Path:
         import yt_dlp
         with yt_dlp.YoutubeDL(opts) as ydl:
             ydl.download([video.url])
-
-    # Retried because this is the step that fails when the wifi drops, or when
-    # YouTube decides we look like a bot, in the middle of a long run.
-    # Deliberately patient on rate limits: 10, 20, 30 ... minutes, roughly five
-    # hours of waiting in total. An IP block typically clears in well under
-    # that, so an overnight run rides it out instead of dying at 3am.
     with_retry(
         _download,
         attempts=8,

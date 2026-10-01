@@ -6,9 +6,6 @@ from collections.abc import Callable
 from typing import TypeVar
 
 T = TypeVar("T")
-
-# Hosts an ingest genuinely needs. Checked by TCP connect rather than ping,
-# because ICMP is often blocked while HTTPS is fine.
 _PROBE_HOSTS = [("www.youtube.com", 443), ("1.1.1.1", 53), ("8.8.8.8", 53)]
 
 
@@ -80,15 +77,8 @@ def with_retry(
         except Exception as exc:
             if attempt == attempts:
                 raise
-            # A dead connection is not a transient error to back off from -
-            # it is something to sit and wait out. Burning the remaining
-            # attempts against an offline router just wastes them.
             if not network_up():
                 wait_for_network(on_wait=on_retry)
-
-            # A rate limit is the opposite of a transient blip: retrying
-            # quickly makes it worse. Back off hard, and grow the wait each
-            # time, so a run that gets throttled slows down rather than dying.
             this_delay = delay
             if is_rate_limit and is_rate_limit(exc):
                 this_delay = rate_limit_delay * attempt

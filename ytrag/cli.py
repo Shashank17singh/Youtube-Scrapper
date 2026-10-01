@@ -55,10 +55,6 @@ from ytrag.transcribe import (
     transcript_path,
 )
 from ytrag.util import network_up, wait_for_network
-
-# Windows consoles still default to cp1252, which cannot encode the box-drawing
-# and arrow characters rich uses - output crashes with UnicodeEncodeError partway
-# through a table. Force UTF-8 before anything prints.
 for _stream in (sys.stdout, sys.stderr):
     try:
         _stream.reconfigure(encoding="utf-8", errors="replace")
@@ -67,10 +63,6 @@ for _stream in (sys.stdout, sys.stderr):
 
 app = typer.Typer(add_completion=False, help="Timestamp-level RAG over a YouTube lecture playlist.")
 console = Console()
-
-# How many times one video may be retried purely because the network was down.
-# Generous, because each retry only happens after the connection has actually
-# come back, so this bounds pathological flapping rather than honest outages.
 MAX_NETWORK_RETRIES = 20
 
 
@@ -83,11 +75,6 @@ def _progress() -> Progress:
         TimeElapsedColumn(),
         console=console,
     )
-
-
-# ------------------------------------------------------------------
-# ingest
-# ------------------------------------------------------------------
 @app.command()
 def ingest(
     playlist: str = typer.Option(..., "--playlist", "-p", help="Playlist or video URL."),
@@ -127,10 +114,6 @@ def ingest(
         for video in videos:
             progress.update(task, description=f"[cyan]{video.title[:48]}")
             network_retries = 0
-
-            # Inner loop so a video that failed only because the connection
-            # dropped can be retried once the connection returns, rather than
-            # being written off as a bad video.
             while True:
                 try:
                     cached = load_transcript(video.video_id)
@@ -138,10 +121,6 @@ def ingest(
                     if skip_transcribe and cached is None:
                         skipped += 1
                         break
-
-                    # Already transcribed AND already in the index: nothing to
-                    # do. Skipping here is what makes a restart resume in
-                    # seconds instead of re-embedding everything first.
                     if cached is not None and not force and video.video_id in already_indexed:
                         done += 1
                         consecutive_failures = 0
@@ -166,18 +145,11 @@ def ingest(
                     break
 
                 except KeyboardInterrupt:
-                    # Ctrl-C stops here rather than being swallowed as a
-                    # failure. Everything already transcribed stays cached.
                     aborted = True
                     progress.console.print("\n[yellow]Interrupted - cached work is safe.[/yellow]")
                     break
 
                 except Exception as exc:
-                    # Distinguish "this video is bad" from "the internet is
-                    # down". Only the first deserves to count against the
-                    # circuit breaker; the second should pause and retry the
-                    # same video, so an ISP blip overnight costs waiting
-                    # rather than a manual restart in the morning.
                     if not network_up() and network_retries < MAX_NETWORK_RETRIES:
                         network_retries += 1
                         progress.console.print(
@@ -188,16 +160,9 @@ def ingest(
                         ):
                             continue  # same video, nothing counted against it
                         progress.console.print("  [red]network never returned[/red]")
-
-                    # One bad video must not kill a multi-hour run.
                     failures.append((video.title, str(exc)))
                     consecutive_failures += 1
                     progress.console.print(f"  [red]fail[/red] {video.title[:52]} - {exc}")
-
-                    # Back-to-back failures with the network *up* means
-                    # something systemic is wrong. Stop cleanly instead of
-                    # ripping through the rest of the playlist failing
-                    # instantly and reporting a "finished" run that did nothing.
                     if stop_after_failures and consecutive_failures >= stop_after_failures:
                         aborted = True
                         progress.console.print(
@@ -227,11 +192,6 @@ def ingest(
             "\n[dim]Re-run the same command to continue - cached transcripts are skipped "
             "and upserts are idempotent, so nothing is redone or duplicated.[/dim]"
         )
-
-
-# ------------------------------------------------------------------
-# reindex
-# ------------------------------------------------------------------
 @app.command()
 def reindex(
     replace: bool = typer.Option(
@@ -250,10 +210,6 @@ def reindex(
     size cost minutes instead of hours - and it is how someone without a GPU
     builds the whole index from the transcripts shipped in the repo.
     """
-    # Precedence matters. Your own live cache always wins over the copy
-    # committed to the repo - that copy is a point-in-time snapshot and goes
-    # stale the moment you transcribe anything new. The bundled folder is a
-    # fallback for someone who cloned the repo and has no cache of their own.
     if transcripts:
         source = transcripts
     elif cached_video_ids():
@@ -299,11 +255,6 @@ def reindex(
             progress.advance(task)
 
     console.print(f"\n[bold green]Reindexed {total} chunks.[/bold green]")
-
-
-# ------------------------------------------------------------------
-# ask / search
-# ------------------------------------------------------------------
 @app.command()
 def ask(
     question: str = typer.Argument(..., help="Your question."),
@@ -366,11 +317,6 @@ def search(
             body[:90].replace("\n", " ") + "…",
         )
     console.print(table)
-
-
-# ------------------------------------------------------------------
-# stats
-# ------------------------------------------------------------------
 @app.command()
 def progress(
     playlist: str = typer.Option(
@@ -399,9 +345,6 @@ def progress(
 
     console.print(f"Transcripts: [bold]{len(ids)}[/bold]")
     console.print(f"Audio done:  [bold]{done_minutes / 60:.1f}[/bold] hours")
-
-    # Throughput from the last few transcripts, which reflects current speed
-    # better than an average over the whole run.
     times.sort()
     recent = times[-6:]
     if len(recent) >= 2:
@@ -467,11 +410,6 @@ def stats():
     for video_id, entry in sorted(info["videos"].items(), key=lambda kv: -kv[1]["chunks"]):
         table.add_row(video_id, entry["title"][:52], str(entry["chunks"]))
     console.print(table)
-
-
-# ------------------------------------------------------------------
-# eval
-# ------------------------------------------------------------------
 @app.command(name="eval")
 def eval_cmd(
     path: Path = typer.Option(DEFAULT_GOLDEN, "--path", help="Golden set JSON."),
@@ -519,11 +457,6 @@ def eval_cmd(
                     )
         else:
             console.print(f"    expected a refusal, got: {miss['answer'][:110]}")
-
-
-# ------------------------------------------------------------------
-# langtest - §6.0, run this before ingesting anything
-# ------------------------------------------------------------------
 @app.command()
 def langtest(
     url: str = typer.Argument(..., help="A single lecture URL."),
@@ -573,17 +506,10 @@ def langtest(
         with open(out, "w", encoding="utf-8") as f:
             json.dump(lines, f, ensure_ascii=False, indent=1)
         console.print(f"[dim]saved -> {out}[/dim]\n")
-
-    # The audio stays put - you will want it for a second pass.
     console.print(
         f"[dim]Audio kept at {audio_path}. "
         f"Set YTRAG_WHISPER_LANG to whichever won, then run `ytrag ingest`.[/dim]"
     )
-
-
-# ------------------------------------------------------------------
-# housekeeping
-# ------------------------------------------------------------------
 @app.command()
 def preflight(playlist: str = typer.Option("", "--playlist", "-p", help="Also check this URL lists.")):
     """Exercise every code path a long ingest depends on, in about a minute.
@@ -621,8 +547,6 @@ def preflight(playlist: str = typer.Option("", "--playlist", "-p", help="Also ch
     check("query round-trip", lambda: f"{len(retrieve_only('preflight probe', top_k=1))} hit(s)")
 
     console.print("\n[bold]Transcription[/bold]")
-    # These two are the checks that would have caught the missing import: they
-    # call the real functions rather than merely importing the module.
     check("whisper model loads", lambda: type(get_model()).__name__)
     check(
         "run_whisper path executes",
@@ -791,9 +715,6 @@ def serve(
     import sys
 
     import uvicorn
-
-    # `api/` is not part of the installed wheel (only `ytrag` is), so make the
-    # project root importable rather than relying on the cwd.
     project_root = Path(__file__).resolve().parent.parent
     if not (project_root / "api" / "main.py").exists():
         console.print(f"[red]Can't find api/main.py under {project_root}.[/red]")
@@ -801,10 +722,6 @@ def serve(
 
     if str(project_root) not in sys.path:
         sys.path.insert(0, str(project_root))
-
-    # Check the port before loading a 90MB model and reporting "startup
-    # complete", only to fail on bind afterwards. uvicorn's own message arrives
-    # after the success line and reads like the app crashed for no reason.
     import socket
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
@@ -824,8 +741,6 @@ def serve(
     console.print(f"[bold green]http://{host}:{port}[/bold green]  [dim](Ctrl-C to stop)[/dim]")
 
     if reload:
-        # --reload needs an import string, and the reloader spawns a fresh
-        # process that won't inherit our sys.path edit.
         os.chdir(project_root)
         uvicorn.run("api.main:app", host=host, port=port, reload=True)
     else:

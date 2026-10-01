@@ -146,9 +146,6 @@ def answer(
         return {"answer": REFUSAL, "citations": [], "grounded": False, "retrieved": 0}
 
     hits = search(question, top_k=top_k, video_id=video_id, max_distance=max_distance)
-
-    # Guard one: nothing survived the distance cutoff, so there is nothing to
-    # ground an answer in. Return the refusal and never call the LLM.
     if not hits:
         return {"answer": REFUSAL, "citations": [], "grounded": False, "retrieved": 0}
 
@@ -156,15 +153,10 @@ def answer(
     user_prompt = f"EXCERPTS\n{build_context(chunks)}\n\nQUESTION: {question}"
 
     text = _chat(SYSTEM_PROMPT, user_prompt)
-
-    # Guard two: the model read the excerpts and said they don't cover it.
     if REFUSAL.lower() in text.lower():
         return {"answer": REFUSAL, "citations": [], "grounded": False, "retrieved": len(hits)}
 
     text, citations = _renumber(text, hits)
-
-    # Guard three: an answer with no citation at all is the model talking from
-    # its own knowledge. Show it, but don't dress it up with links.
     return {
         "answer": text,
         "citations": citations,
