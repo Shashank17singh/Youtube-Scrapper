@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 
 from dotenv import find_dotenv, load_dotenv
+
 logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
 os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
 load_dotenv(find_dotenv(usecwd=True))
@@ -25,7 +26,9 @@ for _d in (AUDIO_DIR, TRANSCRIPT_DIR):
 WHISPER_MODEL = os.getenv("YTRAG_WHISPER_MODEL", "large-v3")
 WHISPER_DEVICE = os.getenv("YTRAG_WHISPER_DEVICE", "auto")  # auto | cuda | cpu
 WHISPER_COMPUTE = os.getenv("YTRAG_WHISPER_COMPUTE", "")  # blank = pick per device
-WHISPER_LANG = os.getenv("YTRAG_WHISPER_LANG", "en")  # see README §6.0 - TEST THIS FIRST
+WHISPER_LANG = os.getenv(
+    "YTRAG_WHISPER_LANG", "en"
+)  # see README §6.0 - TEST THIS FIRST
 WHISPER_BEAM = int(os.getenv("YTRAG_WHISPER_BEAM", 5))
 WHISPER_BATCH = int(os.getenv("YTRAG_WHISPER_BATCH", 8))
 CHUNK_SECONDS = int(os.getenv("YTRAG_CHUNK_SECONDS", 75))

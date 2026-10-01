@@ -137,7 +137,9 @@ def upsert_chunks(chunks: list[Chunk], batch_size: int = UPSERT_BATCH) -> int:
             for c, v in zip(batch, vectors)
         ]
         with_retry(
-            lambda points=points: client.upsert(collection_name=name, points=points, wait=True),
+            lambda points=points: client.upsert(
+                collection_name=name, points=points, wait=True
+            ),
             label=f"upsert {len(points)} points",
         )
         total += len(points)
@@ -186,12 +188,55 @@ def indexed_video_ids() -> set[str]:
         if offset is None:
             break
     return found
+
+
 _STOP = {
-    "kaise", "kya", "hai", "hain", "me", "ka", "ki", "ke", "aur", "kab", "karte",
-    "karna", "hota", "nikale", "solve", "kare", "chahiye", "use", "kahan", "se",
-    "ko", "pehchane", "difference", "farak", "the", "a", "is", "in", "what", "how",
-    "do", "to", "of", "for", "video", "dsa", "patterns", "pattern", "episode",
-    "leetcode", "interview", "questions", "question", "master", "best", "explained",
+    "kaise",
+    "kya",
+    "hai",
+    "hain",
+    "me",
+    "ka",
+    "ki",
+    "ke",
+    "aur",
+    "kab",
+    "karte",
+    "karna",
+    "hota",
+    "nikale",
+    "solve",
+    "kare",
+    "chahiye",
+    "use",
+    "kahan",
+    "se",
+    "ko",
+    "pehchane",
+    "difference",
+    "farak",
+    "the",
+    "a",
+    "is",
+    "in",
+    "what",
+    "how",
+    "do",
+    "to",
+    "of",
+    "for",
+    "video",
+    "dsa",
+    "patterns",
+    "pattern",
+    "episode",
+    "leetcode",
+    "interview",
+    "questions",
+    "question",
+    "master",
+    "best",
+    "explained",
 }
 
 
@@ -281,7 +326,9 @@ def stats() -> dict:
         for point in points:
             payload = point.payload or {}
             vid = payload.get("video_id", "?")
-            entry = videos.setdefault(vid, {"title": payload.get("video_title", "?"), "chunks": 0})
+            entry = videos.setdefault(
+                vid, {"title": payload.get("video_title", "?"), "chunks": 0}
+            )
             entry["chunks"] += 1
         if offset is None:
             break
@@ -295,6 +342,7 @@ def stats() -> dict:
         "videos": videos,
     }
 
+
 def export_vectors(path: Path) -> dict:
     """Dump every point's vector and payload to a compressed .npz."""
     import numpy as np
@@ -306,8 +354,11 @@ def export_vectors(path: Path) -> dict:
     offset = None
     while True:
         points, offset = client.scroll(
-            collection_name=name, limit=512, offset=offset,
-            with_payload=True, with_vectors=True,
+            collection_name=name,
+            limit=512,
+            offset=offset,
+            with_payload=True,
+            with_vectors=True,
         )
         for point in points:
             vectors.append(point.vector)

@@ -31,7 +31,7 @@ graph TD
     D -->|BAAI/bge-m3| E(Embeddings Generation)
     E -->|Upsert| F[(Qdrant Vector Database)]
     end
-    
+
     subgraph Query_Engine [Query Engine]
     G[User Query] -->|BAAI/bge-m3| H(Query Embedding)
     H -->|Vector Search| F
@@ -39,16 +39,16 @@ graph TD
     G --> I
     I -->|Answers + Timestamps| J[FastAPI Backend]
     end
-    
+
     subgraph User_Interface [User Interface]
     J --> K[Interactive Web UI]
     K -->|iframe API| L[YouTube Player Jump]
     end
-    
+
     classDef io fill:#f9f0ff,stroke:#8a2be2,stroke-width:2px,color:#000;
     classDef core fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#000;
     classDef logic fill:#e8f5e9,stroke:#388e3c,stroke-width:2px,color:#000;
-    
+
     class A,K,L io;
     class B,C,D,E,F core;
     class G,H,I,J logic;
@@ -58,28 +58,28 @@ graph TD
 
 ## Features
 
-| Component | Description |
-|---|---|
-| **Precise Timestamp Jumping** | Citations call `player.seekTo()` on the embedded YouTube iframe, so clicking a source jumps inside the page rather than opening a new tab. |
-| **GPU-Optimized Transcription** | Uses `faster-whisper` (CTranslate2) with batched inference to transcribe 68+ hours of video in ~8 hours. |
-| **Idempotent Ingestion** | Network drops or power cuts are survived safely. Re-running the ingest command resumes exactly where it left off, avoiding duplicate processing. |
-| **Stateless Deployment** | The Qdrant index is cloud-hosted and transcripts are committed to the repo, meaning the production deploy needs no persistent disk storage. |
-| **Pre-computed Transcripts** | The expensive transcription step is paid once. The generated JSON transcripts (~1.4 KB per minute of video) are committed so others can build the search engine in seconds locally. |
+| Component                       | Description                                                                                                                                                                         |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Precise Timestamp Jumping**   | Citations call `player.seekTo()` on the embedded YouTube iframe, so clicking a source jumps inside the page rather than opening a new tab.                                          |
+| **GPU-Optimized Transcription** | Uses `faster-whisper` (CTranslate2) with batched inference to transcribe 68+ hours of video in ~8 hours.                                                                            |
+| **Idempotent Ingestion**        | Network drops or power cuts are survived safely. Re-running the ingest command resumes exactly where it left off, avoiding duplicate processing.                                    |
+| **Stateless Deployment**        | The Qdrant index is cloud-hosted and transcripts are committed to the repo, meaning the production deploy needs no persistent disk storage.                                         |
+| **Pre-computed Transcripts**    | The expensive transcription step is paid once. The generated JSON transcripts (~1.4 KB per minute of video) are committed so others can build the search engine in seconds locally. |
 
 ---
 
 ## Technology Stack
 
-| Component | Technologies |
-|:---|:---|
-| **Audio Extraction** | `yt-dlp`, `PyAV` |
-| **Transcription** | `faster-whisper` |
-| **Embeddings** | `sentence-transformers`, `BAAI/bge-m3` |
-| **Vector Database** | `Qdrant Cloud` |
-| **LLM** | `Groq` |
-| **CLI & Tools** | `typer`, `rich`, `uv` |
-| **API & Serving** | `FastAPI`, `uvicorn` |
-| **Frontend** | Vanilla HTML/JS, YouTube IFrame API |
+| Component            | Technologies                           |
+| :------------------- | :------------------------------------- |
+| **Audio Extraction** | `yt-dlp`, `PyAV`                       |
+| **Transcription**    | `faster-whisper`                       |
+| **Embeddings**       | `sentence-transformers`, `BAAI/bge-m3` |
+| **Vector Database**  | `Qdrant Cloud`                         |
+| **LLM**              | `Groq`                                 |
+| **CLI & Tools**      | `typer`, `rich`, `uv`                  |
+| **API & Serving**    | `FastAPI`, `uvicorn`                   |
+| **Frontend**         | Vanilla HTML/JS, YouTube IFrame API    |
 
 ---
 
@@ -96,7 +96,7 @@ Youtube-Scrapper/
 ├── ytrag/
 │   ├── answer.py             # LLM response logic
 │   ├── chunk.py              # Time-window chunking algorithms
-│   ├── cli.py                # Typer CLI application 
+│   ├── cli.py                # Typer CLI application
 │   ├── config.py             # Environment configuration
 │   ├── embed.py              # SentenceTransformer model wrapper
 │   ├── evaluate.py           # Evaluation pipeline
@@ -113,16 +113,20 @@ Youtube-Scrapper/
 ## Setup & Execution
 
 ### 1. Environment Initialization
+
 ```bash
 git clone https://github.com/Shashank17singh/Youtube-Scrapper.git
 cd Youtube-Scrapper
 uv venv --python 3.11
 uv sync
 ```
-*(Optional for Windows GPU users)*: `uv sync --extra cuda`
+
+_(Optional for Windows GPU users)_: `uv sync --extra cuda`
 
 ### 2. Environment Variables
+
 Keys come from the repository root `.env`. Create an `.env` file and set your keys:
+
 ```
 GROQ_API_KEY=your_groq_key
 QDRANT_URL=your_qdrant_url
@@ -132,15 +136,20 @@ YTRAG_ROOT=.
 ```
 
 ### 3. Running the App
+
 Since the expensive transcripts are already bundled in the `/transcripts` folder, you don't need to re-transcribe. You only need to build the local index from them.
+
 ```bash
 uv run ytrag reindex
 uv run ytrag serve
 ```
+
 Then navigate to `http://127.0.0.1:8000`.
 
 ### 4. Ingesting New Playlists (Optional)
+
 If you wish to ingest a brand new playlist from scratch:
+
 ```bash
 uv run ytrag ingest --playlist "<PLAYLIST_URL>"
 ```
@@ -148,31 +157,32 @@ uv run ytrag ingest --playlist "<PLAYLIST_URL>"
 ---
 
 ## Deployment
+
 This project is configured to run effortlessly on platforms like Render or Railway.
+
 - Connect your GitHub repository.
 - **Build Command:** `curl -LsSf https://astral.sh/uv/install.sh | sh && /opt/render/project/.cargo/bin/uv sync`
 - **Start Command:** `uvicorn api.main:app --host 0.0.0.0 --port $PORT`
-- *Make sure to populate your Environment Variables (`GROQ_API_KEY`, `QDRANT_URL`, `QDRANT_API_KEY`, `YTRAG_ROOT=.`) in your hosting dashboard.*
+- _Make sure to populate your Environment Variables (`GROQ_API_KEY`, `QDRANT_URL`, `QDRANT_API_KEY`, `YTRAG_ROOT=.`) in your hosting dashboard._
 
-
---- 
+---
 
 ## Deep Codebase Analysis
 
-| File | Purpose / Details |
-|---|---|
-| `api\__init__.py` | Core component logic and implementation details. |
-| `api\main.py` | FastAPI wrapper around answer(), plus the single-page UI. |
-| `cleaned_diff.txt` | Core component logic and implementation details. |
-| `compare_out.txt` | Binary or unreadable file. |
-| `compare_out2.txt` | Core component logic and implementation details. |
-| `compare_out_utf8.txt` | Binary or unreadable file. |
-| `diff.txt` | Binary or unreadable file. |
-| `diff_out.txt` | Core component logic and implementation details. |
-| `embed_diff.txt` | Core component logic and implementation details. |
-| `eval\golden.json` | Core component logic and implementation details. |
-| `eval\golden_draft.json` | Core component logic and implementation details. |
-| `main.py` | Convenience entrypoint so `uv run main.py ...` works like `ytrag ...`. |
-| `transcripts\-AEEZEWOA-E.json` | Core component logic and implementation details. |
-| `transcripts\-CvRpL_iUKo.json` | Core component logic and implementation details. |
-| `transcripts\-g6h0Ok1Buk.json` | Core component logic and implementation details. |
+| File                           | Purpose / Details                                                      |
+| ------------------------------ | ---------------------------------------------------------------------- |
+| `api\__init__.py`              | Core component logic and implementation details.                       |
+| `api\main.py`                  | FastAPI wrapper around answer(), plus the single-page UI.              |
+| `cleaned_diff.txt`             | Core component logic and implementation details.                       |
+| `compare_out.txt`              | Binary or unreadable file.                                             |
+| `compare_out2.txt`             | Core component logic and implementation details.                       |
+| `compare_out_utf8.txt`         | Binary or unreadable file.                                             |
+| `diff.txt`                     | Binary or unreadable file.                                             |
+| `diff_out.txt`                 | Core component logic and implementation details.                       |
+| `embed_diff.txt`               | Core component logic and implementation details.                       |
+| `eval\golden.json`             | Core component logic and implementation details.                       |
+| `eval\golden_draft.json`       | Core component logic and implementation details.                       |
+| `main.py`                      | Convenience entrypoint so `uv run main.py ...` works like `ytrag ...`. |
+| `transcripts\-AEEZEWOA-E.json` | Core component logic and implementation details.                       |
+| `transcripts\-CvRpL_iUKo.json` | Core component logic and implementation details.                       |
+| `transcripts\-g6h0Ok1Buk.json` | Core component logic and implementation details.                       |

@@ -83,8 +83,10 @@ def _chat(system: str, user: str) -> str:
 
     response = get_client().chat.completions.create(
         model=LLM_MODEL or GROQ_MODEL,
-        messages=[{"role": "system", "content": system},
-                  {"role": "user", "content": user}],
+        messages=[
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ],
         temperature=0.2,
     )
     return (response.choices[0].message.content or "").strip()
@@ -154,7 +156,12 @@ def answer(
 
     text = _chat(SYSTEM_PROMPT, user_prompt)
     if REFUSAL.lower() in text.lower():
-        return {"answer": REFUSAL, "citations": [], "grounded": False, "retrieved": len(hits)}
+        return {
+            "answer": REFUSAL,
+            "citations": [],
+            "grounded": False,
+            "retrieved": len(hits),
+        }
 
     text, citations = _renumber(text, hits)
     return {
@@ -165,7 +172,9 @@ def answer(
     }
 
 
-def retrieve_only(question: str, top_k: int = TOP_K, filtered: bool = False) -> list[tuple[Chunk, float]]:
+def retrieve_only(
+    question: str, top_k: int = TOP_K, filtered: bool = False
+) -> list[tuple[Chunk, float]]:
     """Retrieval without the LLM - used by evaluate.py and `ytrag search`.
 
     Unfiltered by default: 2.0 is the maximum possible cosine distance, so
@@ -173,6 +182,7 @@ def retrieve_only(question: str, top_k: int = TOP_K, filtered: bool = False) -> 
     including the results the MAX_DISTANCE cutoff would have thrown away.
     """
     return search(question, top_k=top_k, max_distance=None if filtered else 2.0)
+
 
 def _is_confident(question: str, hits: list[tuple[Chunk, float]]) -> bool:
     """Is the top result trustworthy enough to present without a caveat?
@@ -188,7 +198,9 @@ def _is_confident(question: str, hits: list[tuple[Chunk, float]]) -> bool:
     if not hits:
         return False
     chunk, distance = hits[0]
-    return title_overlap(question, chunk.video_title) > 0 or distance <= CONFIDENT_DISTANCE
+    return (
+        title_overlap(question, chunk.video_title) > 0 or distance <= CONFIDENT_DISTANCE
+    )
 
 
 def search_only(question: str, top_k: int = TOP_K, video_id: str | None = None) -> dict:
