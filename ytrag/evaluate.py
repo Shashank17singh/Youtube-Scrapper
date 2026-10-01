@@ -31,7 +31,11 @@ def load_golden(path: str | Path = DEFAULT_GOLDEN) -> list[dict]:
         raise FileNotFoundError(f"No golden set at {path}")
     with open(path, "r", encoding="utf-8") as f:
         entries = json.load(f)
-    return [e for e in entries if isinstance(e, dict) and not str(e.get("q", "")).startswith("_")]
+    return [
+        e
+        for e in entries
+        if isinstance(e, dict) and not str(e.get("q", "")).startswith("_")
+    ]
 
 
 def _check_retrieval(entry: dict, k: int) -> dict:
@@ -46,7 +50,9 @@ def _check_retrieval(entry: dict, k: int) -> dict:
     if video_hit and around is not None:
         lo, hi = around - tolerance, around + tolerance
         time_hit = any(
-            chunk.video_id == expected_id and chunk.start_sec <= hi and chunk.end_sec >= lo
+            chunk.video_id == expected_id
+            and chunk.start_sec <= hi
+            and chunk.end_sec >= lo
             for chunk, _ in hits
         )
 
@@ -120,6 +126,8 @@ def run_eval(path: str | Path = DEFAULT_GOLDEN, k: int = 5) -> dict:
             sum(1 for r in retrieval if r["video_hit"]) / len(retrieval), 4
         )
     if refusal:
-        summary["refusal_rate"] = round(sum(1 for r in refusal if r["hit"]) / len(refusal), 4)
+        summary["refusal_rate"] = round(
+            sum(1 for r in refusal if r["hit"]) / len(refusal), 4
+        )
 
     return summary

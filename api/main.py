@@ -22,6 +22,7 @@ from ytrag.index import stats as index_stats
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Load the embedding model before accepting traffic.
@@ -45,6 +46,8 @@ app = FastAPI(title="YT Lecture RAG", version="0.1.0", lifespan=lifespan)
 class AskRequest(BaseModel):
     question: str = Field(..., min_length=1, max_length=config.MAX_QUESTION_CHARS)
     top_k: int = Field(default=config.TOP_K, ge=1, le=20)
+
+
 _HITS: dict[str, deque] = defaultdict(deque)
 
 
@@ -67,7 +70,11 @@ def _rate_limit(request: Request) -> None:
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "model": config.LLM_MODEL, "embed_model": config.EMBED_MODEL}
+    return {
+        "status": "ok",
+        "model": config.LLM_MODEL,
+        "embed_model": config.EMBED_MODEL,
+    }
 
 
 @app.get("/stats")
@@ -99,7 +106,9 @@ def ask(payload: AskRequest, request: Request):
             "This is a provider limit, not a problem with your question - try again later.",
         )
     except APIStatusError as exc:
-        raise HTTPException(status_code=502, detail=f"Language model error: {exc.status_code}")
+        raise HTTPException(
+            status_code=502, detail=f"Language model error: {exc.status_code}"
+        )
     except RuntimeError as exc:
         raise HTTPException(status_code=503, detail=str(exc))
     except Exception as exc:

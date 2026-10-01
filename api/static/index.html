@@ -2,24 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>YT Scrapper - Find the exact moment a topic is mentioned</title>
     <meta
       name="description"
       content="Search any topic and jump to the exact second it was mentioned in indexed YouTube videos."
     />
-    <link
-      rel="preconnect"
-      href="https://fonts.googleapis.com"
-    />
-    <link
-      rel="preconnect"
-      href="https://fonts.gstatic.com"
-      crossorigin
-    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
@@ -592,11 +582,7 @@
               stroke-width="2.2"
               stroke-linecap="round"
             >
-              <circle
-                cx="11"
-                cy="11"
-                r="7"
-              />
+              <circle cx="11" cy="11" r="7" />
               <path d="M20 20l-3.5-3.5" />
             </svg>
             <input
@@ -607,38 +593,17 @@
               autofocus
               placeholder="Ask anything covered in the videos…"
             />
-            <button
-              class="search-btn"
-              id="askBtn"
-              type="submit"
-            >
-              Search
-            </button>
+            <button class="search-btn" id="askBtn" type="submit">Search</button>
           </div>
         </form>
 
-        <div
-          class="section-label"
-          id="resultsLabel"
-        >
-          Results
-        </div>
-        <div
-          id="results"
-          class="empty-state"
-        >
+        <div class="section-label" id="resultsLabel">Results</div>
+        <div id="results" class="empty-state">
           Search above to find the exact moments from indexed videos.
         </div>
 
-        <div
-          id="explainWrap"
-          hidden
-        >
-          <button
-            class="explain"
-            id="explainBtn"
-            type="button"
-          >
+        <div id="explainWrap" hidden>
+          <button class="explain" id="explainBtn" type="button">
             <svg
               width="14"
               height="14"
@@ -653,18 +618,11 @@
             </svg>
             Generate AI summary
           </button>
-          <div
-            id="answer"
-            hidden
-          ></div>
+          <div id="answer" hidden></div>
         </div>
 
         <!-- Setup instructions shown when index is empty -->
-        <div
-          id="setupCard"
-          class="setup-card"
-          hidden
-        >
+        <div id="setupCard" class="setup-card" hidden>
           <h3>
             <svg
               width="15"
@@ -675,23 +633,9 @@
               stroke-width="2"
               stroke-linecap="round"
             >
-              <circle
-                cx="12"
-                cy="12"
-                r="10"
-              />
-              <line
-                x1="12"
-                y1="8"
-                x2="12"
-                y2="12"
-              />
-              <line
-                x1="12"
-                y1="16"
-                x2="12.01"
-                y2="16"
-              />
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
             No videos indexed yet
           </h3>
@@ -737,10 +681,7 @@
               </div>
             </div>
           </div>
-          <div
-            class="step"
-            style="margin-bottom: 0"
-          >
+          <div class="step" style="margin-bottom: 0">
             <span class="step-num">4</span>
             <div>
               <strong style="color: var(--text)">
@@ -837,7 +778,7 @@
         pending = null,
         currentVideo = null;
 
-      window.onYouTubeIframeAPIReady = function() {
+      window.onYouTubeIframeAPIReady = function () {
         apiReady = true;
         if (pending) {
           const p = pending;
@@ -848,8 +789,7 @@
       setTimeout(() => {
         if (!apiReady) {
           apiBlocked = true;
-          nowText.textContent =
-            "YouTube API blocked - using fallback player.";
+          nowText.textContent = "YouTube API blocked - using fallback player.";
           if (pending) {
             const p = pending;
             pending = null;
@@ -868,7 +808,8 @@
 
       function jump(videoId, seconds, title, el) {
         if (apiBlocked) {
-          $("playerBox").innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${videoId}?start=${Math.floor(seconds)}&autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+          $("playerBox").innerHTML =
+            `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${videoId}?start=${Math.floor(seconds)}&autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
           nowText.textContent = `${title} - ${fmt(seconds)}`;
           nowPlaying.classList.add("live");
           document

@@ -11,7 +11,13 @@ from ytrag.config import (
 )
 from ytrag.models import Video
 from ytrag.util import with_retry
-_BOT_MARKERS = ("not a bot", "sign in to confirm", "too many requests", "http error 429")
+
+_BOT_MARKERS = (
+    "not a bot",
+    "sign in to confirm",
+    "too many requests",
+    "http error 429",
+)
 
 
 def _is_bot_challenge(exc: Exception) -> bool:
@@ -30,6 +36,8 @@ def _cookie_opts() -> dict:
     if COOKIES_FROM_BROWSER:
         return {"cookiesfrombrowser": (COOKIES_FROM_BROWSER,)}
     return {}
+
+
 _QUIET = {"quiet": True, "no_warnings": True, "noprogress": True}
 
 
@@ -91,8 +99,10 @@ def download_audio(video: Video, force: bool = False) -> Path:
 
     def _download():
         import yt_dlp
+
         with yt_dlp.YoutubeDL(opts) as ydl:
             ydl.download([video.url])
+
     with_retry(
         _download,
         attempts=8,
@@ -103,7 +113,9 @@ def download_audio(video: Video, force: bool = False) -> Path:
 
     path = find_audio(video.video_id)
     if path is None:
-        raise RuntimeError(f"yt-dlp reported success but no audio file for {video.video_id}")
+        raise RuntimeError(
+            f"yt-dlp reported success but no audio file for {video.video_id}"
+        )
     return path
 
 

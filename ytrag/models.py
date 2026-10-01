@@ -4,6 +4,7 @@ import uuid
 from dataclasses import dataclass
 
 from ytrag.config import LINK_REWIND_SECONDS
+
 _NAMESPACE = uuid.UUID("6f9619ff-8b86-d011-b42d-00c04fc964ff")
 
 

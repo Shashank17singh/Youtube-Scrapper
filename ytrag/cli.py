@@ -1,13 +1,13 @@
 """typer entrypoint.
 
-    ytrag langtest <url>              # decide the Whisper language flag (do this first)
-    ytrag ingest --playlist <URL>     # download -> transcribe -> chunk -> upsert
-    ytrag ask "question"
-    ytrag search "question"           # retrieval only, no LLM
-    ytrag reindex                     # re-chunk + re-embed from cached transcripts
-    ytrag stats
-    ytrag eval
-    ytrag serve                       # FastAPI + web UI
+ytrag langtest <url>              # decide the Whisper language flag (do this first)
+ytrag ingest --playlist <URL>     # download -> transcribe -> chunk -> upsert
+ytrag ask "question"
+ytrag search "question"           # retrieval only, no LLM
+ytrag reindex                     # re-chunk + re-embed from cached transcripts
+ytrag stats
+ytrag eval
+ytrag serve                       # FastAPI + web UI
 """
 
 import json
@@ -55,13 +55,16 @@ from ytrag.transcribe import (
     transcript_path,
 )
 from ytrag.util import network_up, wait_for_network
+
 for _stream in (sys.stdout, sys.stderr):
     try:
         _stream.reconfigure(encoding="utf-8", errors="replace")
     except (AttributeError, ValueError):
         pass
 
-app = typer.Typer(add_completion=False, help="Timestamp-level RAG over a YouTube lecture playlist.")
+app = typer.Typer(
+    add_completion=False, help="Timestamp-level RAG over a YouTube lecture playlist."
+)
 console = Console()
 MAX_NETWORK_RETRIES = 20
 
@@ -75,15 +78,27 @@ def _progress() -> Progress:
         TimeElapsedColumn(),
         console=console,
     )
+
+
 @app.command()
 def ingest(
-    playlist: str = typer.Option(..., "--playlist", "-p", help="Playlist or video URL."),
-    limit: int = typer.Option(0, "--limit", "-n", help="Only process the first N videos."),
-    skip_transcribe: bool = typer.Option(
-        False, "--skip-transcribe", help="Only use videos that already have a cached transcript."
+    playlist: str = typer.Option(
+        ..., "--playlist", "-p", help="Playlist or video URL."
     ),
-    keep_audio: bool = typer.Option(False, "--keep-audio", help="Don't delete audio after transcribing."),
-    force: bool = typer.Option(False, "--force", help="Re-transcribe even if a transcript exists."),
+    limit: int = typer.Option(
+        0, "--limit", "-n", help="Only process the first N videos."
+    ),
+    skip_transcribe: bool = typer.Option(
+        False,
+        "--skip-transcribe",
+        help="Only use videos that already have a cached transcript.",
+    ),
+    keep_audio: bool = typer.Option(
+        False, "--keep-audio", help="Don't delete audio after transcribing."
+    ),
+    force: bool = typer.Option(
+        False, "--force", help="Re-transcribe even if a transcript exists."
+    ),
     stop_after_failures: int = typer.Option(
         5,
         "--stop-after-failures",
@@ -100,7 +115,9 @@ def ingest(
 
     already_indexed = set() if force else indexed_video_ids()
     if already_indexed:
-        console.print(f"[dim]{len(already_indexed)} video(s) already indexed - will skip.[/dim]\n")
+        console.print(
+            f"[dim]{len(already_indexed)} video(s) already indexed - will skip.[/dim]\n"
+        )
 
     indexed = 0
     failures: list[tuple[str, str]] = []
@@ -121,7 +138,11 @@ def ingest(
                     if skip_transcribe and cached is None:
                         skipped += 1
                         break
-                    if cached is not None and not force and video.video_id in already_indexed:
+                    if (
+                        cached is not None
+                        and not force
+                        and video.video_id in already_indexed
+                    ):
                         done += 1
                         consecutive_failures = 0
                         break
@@ -146,7 +167,9 @@ def ingest(
 
                 except KeyboardInterrupt:
                     aborted = True
-                    progress.console.print("\n[yellow]Interrupted - cached work is safe.[/yellow]")
+                    progress.console.print(
+                        "\n[yellow]Interrupted - cached work is safe.[/yellow]"
+                    )
                     break
 
                 except Exception as exc:
@@ -156,14 +179,21 @@ def ingest(
                             f"  [yellow]offline[/yellow] {video.title[:42]} - waiting for network"
                         )
                         if wait_for_network(
-                            on_wait=lambda m: progress.console.print(f"  [dim]network: {m}[/dim]")
+                            on_wait=lambda m: progress.console.print(
+                                f"  [dim]network: {m}[/dim]"
+                            )
                         ):
                             continue  # same video, nothing counted against it
                         progress.console.print("  [red]network never returned[/red]")
                     failures.append((video.title, str(exc)))
                     consecutive_failures += 1
-                    progress.console.print(f"  [red]fail[/red] {video.title[:52]} - {exc}")
-                    if stop_after_failures and consecutive_failures >= stop_after_failures:
+                    progress.console.print(
+                        f"  [red]fail[/red] {video.title[:52]} - {exc}"
+                    )
+                    if (
+                        stop_after_failures
+                        and consecutive_failures >= stop_after_failures
+                    ):
                         aborted = True
                         progress.console.print(
                             f"\n[bold red]{consecutive_failures} failures in a row - "
@@ -182,7 +212,9 @@ def ingest(
         f"{cached_now} transcript(s) now cached."
     )
     if skipped:
-        console.print(f"[yellow]Skipped {skipped}[/yellow] video(s) with no cached transcript.")
+        console.print(
+            f"[yellow]Skipped {skipped}[/yellow] video(s) with no cached transcript."
+        )
     if failures:
         console.print(f"[bold red]{len(failures)} failure(s):[/bold red]")
         for title, err in failures:
@@ -192,10 +224,14 @@ def ingest(
             "\n[dim]Re-run the same command to continue - cached transcripts are skipped "
             "and upserts are idempotent, so nothing is redone or duplicated.[/dim]"
         )
+
+
 @app.command()
 def reindex(
     replace: bool = typer.Option(
-        False, "--replace", help="Delete each video's existing chunks first (needed if chunk settings changed)."
+        False,
+        "--replace",
+        help="Delete each video's existing chunks first (needed if chunk settings changed).",
     ),
     transcripts: Path = typer.Option(
         None,
@@ -225,7 +261,9 @@ def reindex(
         )
         raise typer.Exit(1)
 
-    console.print(f"Rebuilding index from [bold]{len(video_ids)}[/bold] transcripts in {source}.")
+    console.print(
+        f"Rebuilding index from [bold]{len(video_ids)}[/bold] transcripts in {source}."
+    )
     console.print(f"Embedding model: [cyan]{config.EMBED_MODEL}[/cyan]\n")
 
     total = 0
@@ -234,7 +272,9 @@ def reindex(
         for video_id in video_ids:
             data = load_transcript(video_id, source)
             if data is None:
-                progress.console.print(f"  [red]skip[/red] {video_id} - unreadable transcript")
+                progress.console.print(
+                    f"  [red]skip[/red] {video_id} - unreadable transcript"
+                )
                 progress.advance(task)
                 continue
 
@@ -255,6 +295,8 @@ def reindex(
             progress.advance(task)
 
     console.print(f"\n[bold green]Reindexed {total} chunks.[/bold green]")
+
+
 @app.command()
 def ask(
     question: str = typer.Argument(..., help="Your question."),
@@ -298,7 +340,9 @@ def search(
     """Retrieval only - see exactly what comes back, and at what distance."""
     hits = retrieve_only(question, top_k=top_k)
     if not hits:
-        console.print("[yellow]Nothing retrieved. Is the collection populated?[/yellow]")
+        console.print(
+            "[yellow]Nothing retrieved. Is the collection populated?[/yellow]"
+        )
         return
 
     table = Table(title=f"Top {len(hits)} - cutoff is {config.MAX_DISTANCE}")
@@ -317,6 +361,8 @@ def search(
             body[:90].replace("\n", " ") + "…",
         )
     console.print(table)
+
+
 @app.command()
 def progress(
     playlist: str = typer.Option(
@@ -353,7 +399,10 @@ def progress(
             recent_audio = 0.0
             for video_id in ids:
                 path = transcript_path(video_id)
-                if path.stat().st_mtime >= recent[0] and path.stat().st_mtime != recent[0]:
+                if (
+                    path.stat().st_mtime >= recent[0]
+                    and path.stat().st_mtime != recent[0]
+                ):
                     data = load_transcript(video_id)
                     if data and data.get("segments"):
                         recent_audio += data["segments"][-1]["end"] / 60.0
@@ -374,7 +423,9 @@ def progress(
                     )
                     bar_width = 40
                     filled = int(bar_width * pct / 100)
-                    console.print(f"[green]{'█' * filled}[/green]{'░' * (bar_width - filled)}")
+                    console.print(
+                        f"[green]{'█' * filled}[/green]{'░' * (bar_width - filled)}"
+                    )
 
     newest = max(times)
     import time as _time
@@ -395,31 +446,43 @@ def stats():
 
     console.print(f"Collection:      [bold]{info['collection']}[/bold]")
     console.print(f"Embedding model: [cyan]{config.EMBED_MODEL}[/cyan]")
-    console.print(f"Transcripts:     {len(transcripts)} cached in {config.TRANSCRIPT_DIR}")
+    console.print(
+        f"Transcripts:     {len(transcripts)} cached in {config.TRANSCRIPT_DIR}"
+    )
 
     if not info["exists"]:
         console.print("[yellow]Collection does not exist yet.[/yellow]")
         return
 
-    console.print(f"Chunks:          [bold]{info['chunks']}[/bold] ({info['dim']}-dim)\n")
+    console.print(
+        f"Chunks:          [bold]{info['chunks']}[/bold] ({info['dim']}-dim)\n"
+    )
 
     table = Table(title="Per video")
     table.add_column("Video ID", style="dim")
     table.add_column("Lecture")
     table.add_column("Chunks", justify="right")
-    for video_id, entry in sorted(info["videos"].items(), key=lambda kv: -kv[1]["chunks"]):
+    for video_id, entry in sorted(
+        info["videos"].items(), key=lambda kv: -kv[1]["chunks"]
+    ):
         table.add_row(video_id, entry["title"][:52], str(entry["chunks"]))
     console.print(table)
+
+
 @app.command(name="eval")
 def eval_cmd(
     path: Path = typer.Option(DEFAULT_GOLDEN, "--path", help="Golden set JSON."),
     k: int = typer.Option(5, "--k", help="Retrieval depth to score at."),
-    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show what each miss returned."),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Show what each miss returned."
+    ),
 ):
     """Score retrieval against the golden set."""
     report = run_eval(path, k=k)
     if report["n"] == 0:
-        console.print(f"[yellow]No entries in {path}. Fill it in - see the README.[/yellow]")
+        console.print(
+            f"[yellow]No entries in {path}. Fill it in - see the README.[/yellow]"
+        )
         raise typer.Exit(1)
 
     rate = report[f"hit_rate_at_{k}"]
@@ -457,11 +520,17 @@ def eval_cmd(
                     )
         else:
             console.print(f"    expected a refusal, got: {miss['answer'][:110]}")
+
+
 @app.command()
 def langtest(
     url: str = typer.Argument(..., help="A single lecture URL."),
-    seconds: int = typer.Option(180, "--seconds", help="How much of the lecture to transcribe."),
-    languages: str = typer.Option("en,hi", "--languages", help="Comma-separated language codes."),
+    seconds: int = typer.Option(
+        180, "--seconds", help="How much of the lecture to transcribe."
+    ),
+    languages: str = typer.Option(
+        "en,hi", "--languages", help="Comma-separated language codes."
+    ),
 ):
     """Transcribe one lecture in two languages and print both, side by side.
 
@@ -510,8 +579,14 @@ def langtest(
         f"[dim]Audio kept at {audio_path}. "
         f"Set YTRAG_WHISPER_LANG to whichever won, then run `ytrag ingest`.[/dim]"
     )
+
+
 @app.command()
-def preflight(playlist: str = typer.Option("", "--playlist", "-p", help="Also check this URL lists.")):
+def preflight(
+    playlist: str = typer.Option(
+        "", "--playlist", "-p", help="Also check this URL lists."
+    ),
+):
     """Exercise every code path a long ingest depends on, in about a minute.
 
     Written after an 8-hour run died ten seconds in on a missing import. The
@@ -524,27 +599,41 @@ def preflight(playlist: str = typer.Option("", "--playlist", "-p", help="Also ch
         nonlocal ok
         try:
             detail = fn()
-            console.print(f"  [green]pass[/green] {name}" + (f" - {detail}" if detail else ""))
+            console.print(
+                f"  [green]pass[/green] {name}" + (f" - {detail}" if detail else "")
+            )
             return True
         except Exception as exc:
             ok = False
-            console.print(f"  [red]FAIL[/red] {name} - {type(exc).__name__}: {str(exc)[:100]}")
+            console.print(
+                f"  [red]FAIL[/red] {name} - {type(exc).__name__}: {str(exc)[:100]}"
+            )
             return False
 
     console.print("[bold]Config[/bold]")
-    check("GROQ_API_KEY set", lambda: "yes" if config.GROQ_API_KEY else _raise("missing"))
+    check(
+        "GROQ_API_KEY set", lambda: "yes" if config.GROQ_API_KEY else _raise("missing")
+    )
     check("QDRANT_URL set", lambda: "yes" if config.QDRANT_URL else _raise("missing"))
     check(
         "whisper settings",
-        lambda: f"{config.WHISPER_MODEL} lang={config.WHISPER_LANG} "
-        f"batch={config.WHISPER_BATCH} beam={config.WHISPER_BEAM}",
+        lambda: (
+            f"{config.WHISPER_MODEL} lang={config.WHISPER_LANG} "
+            f"batch={config.WHISPER_BATCH} beam={config.WHISPER_BEAM}"
+        ),
     )
 
     console.print("\n[bold]Vector store[/bold]")
-    check("qdrant reachable", lambda: f"{len(get_client().get_collections().collections)} collections")
+    check(
+        "qdrant reachable",
+        lambda: f"{len(get_client().get_collections().collections)} collections",
+    )
     check("embedder loads", lambda: f"{config.EMBED_MODEL} ({get_embedder().dim}-dim)")
     check("collection ready", lambda: ensure_collection())
-    check("query round-trip", lambda: f"{len(retrieve_only('preflight probe', top_k=1))} hit(s)")
+    check(
+        "query round-trip",
+        lambda: f"{len(retrieve_only('preflight probe', top_k=1))} hit(s)",
+    )
 
     console.print("\n[bold]Transcription[/bold]")
     check("whisper model loads", lambda: type(get_model()).__name__)
@@ -563,7 +652,9 @@ def preflight(playlist: str = typer.Option("", "--playlist", "-p", help="Also ch
     if ok:
         console.print("\n[bold green]All preflight checks passed.[/bold green]")
     else:
-        console.print("\n[bold red]Preflight failed - fix the above before a long run.[/bold red]")
+        console.print(
+            "\n[bold red]Preflight failed - fix the above before a long run.[/bold red]"
+        )
         raise typer.Exit(1)
 
 
@@ -617,12 +708,16 @@ def export_vectors_cmd(
         f"Exported [bold]{info['count']}[/bold] vectors "
         f"({info['mb']:.1f} MB) to {target}"
     )
-    console.print("[dim]Commit this. Anyone who clones can then run `ytrag load`.[/dim]")
+    console.print(
+        "[dim]Commit this. Anyone who clones can then run `ytrag load`.[/dim]"
+    )
 
 
 @app.command()
 def load(
-    path: Path = typer.Option(None, "--path", help="Defaults to the repo's index/vectors.npz"),
+    path: Path = typer.Option(
+        None, "--path", help="Defaults to the repo's index/vectors.npz"
+    ),
 ):
     """Load the prebuilt index. Seconds, instead of minutes of embedding."""
     from ytrag.index import import_vectors
@@ -658,7 +753,9 @@ def _bundled_transcripts() -> Path | None:
 
 @app.command()
 def export_transcripts(
-    dest: Path = typer.Argument(None, help="Where to write them. Defaults to ./transcripts."),
+    dest: Path = typer.Argument(
+        None, help="Where to write them. Defaults to ./transcripts."
+    ),
 ):
     """Copy cached transcripts into the repo so they can be committed and shared.
 
@@ -686,7 +783,9 @@ def export_transcripts(
         f"Exported [bold]{len(ids)}[/bold] transcripts "
         f"({total_bytes / 1024 / 1024:.1f} MB) to {target}"
     )
-    console.print("[dim]Commit these. Anyone who clones can then run `ytrag reindex`.[/dim]")
+    console.print(
+        "[dim]Commit these. Anyone who clones can then run `ytrag reindex`.[/dim]"
+    )
     console.print(
         "[dim]This is a snapshot - re-run it after transcribing anything new. "
         "Your own commands always use the live cache, never this copy.[/dim]"
@@ -715,6 +814,7 @@ def serve(
     import sys
 
     import uvicorn
+
     project_root = Path(__file__).resolve().parent.parent
     if not (project_root / "api" / "main.py").exists():
         console.print(f"[red]Can't find api/main.py under {project_root}.[/red]")
@@ -737,8 +837,12 @@ def serve(
             )
             raise typer.Exit(1)
 
-    console.print("[dim]Starting… the embedding model loads first (a few seconds).[/dim]")
-    console.print(f"[bold green]http://{host}:{port}[/bold green]  [dim](Ctrl-C to stop)[/dim]")
+    console.print(
+        "[dim]Starting… the embedding model loads first (a few seconds).[/dim]"
+    )
+    console.print(
+        f"[bold green]http://{host}:{port}[/bold green]  [dim](Ctrl-C to stop)[/dim]"
+    )
 
     if reload:
         os.chdir(project_root)

@@ -11,9 +11,8 @@ import sys
 from typing import Protocol
 
 from ytrag.config import EMBED_BATCH, EMBED_MODEL, EMBED_QUERY_PREFIX
-_BENIGN = re.compile(
-    r"unauthenticated requests to the HF Hub|Loading weights:|^\s*$"
-)
+
+_BENIGN = re.compile(r"unauthenticated requests to the HF Hub|Loading weights:|^\s*$")
 
 
 @contextlib.contextmanager
@@ -91,7 +90,7 @@ class FastEmbedder:
         fastembed_model = model_name
         if model_name == "all-MiniLM-L6-v2":
             fastembed_model = "sentence-transformers/all-MiniLM-L6-v2"
-            
+
         with _quiet_load():
             self.model = TextEmbedding(fastembed_model)
         dummy = list(self.model.embed(["test"]))[0]
@@ -118,6 +117,7 @@ def get_embedder() -> Embedder:
     if _EMBEDDER is None:
         try:
             import fastembed
+
             _EMBEDDER = FastEmbedder()
         except ImportError:
             _EMBEDDER = SentenceTransformerEmbedder()

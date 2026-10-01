@@ -99,10 +99,10 @@ chunk size, or want to try a different embedding model.
 
 Default is `all-MiniLM-L6-v2`. Measured on this corpus of 2,933 chunks:
 
-| model | download | reindex (CPU) | top-1 | top-5 |
-|---|---|---|---|---|
-| **all-MiniLM-L6-v2** (default) | **87 MB** | **1.6 min** | 11/12 | 12/12 |
-| BAAI/bge-m3 | 4.35 GB | 55 min | 12/12 | 12/12 |
+| model                          | download  | reindex (CPU) | top-1 | top-5 |
+| ------------------------------ | --------- | ------------- | ----- | ----- |
+| **all-MiniLM-L6-v2** (default) | **87 MB** | **1.6 min**   | 11/12 | 12/12 |
+| BAAI/bge-m3                    | 4.35 GB   | 55 min        | 12/12 | 12/12 |
 
 bge-m3 is the stronger multilingual model and wins exactly one question out of
 twelve - which the smaller model still returns at rank 2. Fifty times the
@@ -131,13 +131,13 @@ and safe to ignore. HuggingFace suggests setting a token for faster downloads;
 nothing here needs one. It is printed by a compiled library at a level Python
 cannot intercept, which is why it survives.
 
-| symptom | fix |
-|---|---|
-| `GROQ_API_KEY is not set` | `.env` missing, or you are in the wrong folder |
-| `These vectors were built with…` | your `YTRAG_EMBED_MODEL` differs from the shipped index; unset it, or `reindex` |
-| `already open in another process` | stop `ytrag serve` first |
-| `No prebuilt index found` | run from `week3/ytscraper`, or use `ytrag reindex` |
-| LLM quota errors | free tiers are limited; `ytrag search` needs no LLM at all |
+| symptom                           | fix                                                                             |
+| --------------------------------- | ------------------------------------------------------------------------------- |
+| `GROQ_API_KEY is not set`         | `.env` missing, or you are in the wrong folder                                  |
+| `These vectors were built with…`  | your `YTRAG_EMBED_MODEL` differs from the shipped index; unset it, or `reindex` |
+| `already open in another process` | stop `ytrag serve` first                                                        |
+| `No prebuilt index found`         | run from `week3/ytscraper`, or use `ytrag reindex`                              |
+| LLM quota errors                  | free tiers are limited; `ytrag search` needs no LLM at all                      |
 
 ---
 

@@ -19,6 +19,7 @@ from ytrag.config import (
 )
 from ytrag.models import Segment, Video
 from ytrag.playlist import delete_audio, download_audio
+
 _MODEL_CACHE: dict[tuple, object] = {}
 
 
@@ -98,7 +99,9 @@ def run_whisper(audio_path: str, language: str, model_name: str = WHISPER_MODEL)
                 vad_filter=True,
             )
         except (ImportError, AttributeError, TypeError) as exc:
-            print(f"[transcribe] batched pipeline unavailable ({exc}); using sequential.")
+            print(
+                f"[transcribe] batched pipeline unavailable ({exc}); using sequential."
+            )
 
     return get_model(model_name).transcribe(
         audio_path,
@@ -139,7 +142,9 @@ def segments_from_transcript(data: dict) -> list[Segment]:
     ]
 
 
-def _write_transcript(video: Video, language: str, model_name: str, segments: list[Segment]) -> None:
+def _write_transcript(
+    video: Video, language: str, model_name: str, segments: list[Segment]
+) -> None:
     """Write atomically.
 
     A Ctrl-C part way through a plain write leaves a truncated JSON file that
@@ -152,7 +157,9 @@ def _write_transcript(video: Video, language: str, model_name: str, segments: li
         "language": language,
         "model": model_name,
         "duration": video.duration,
-        "segments": [{"start": s.start, "end": s.end, "text": s.text} for s in segments],
+        "segments": [
+            {"start": s.start, "end": s.end, "text": s.text} for s in segments
+        ],
     }
     final = transcript_path(video.video_id)
     tmp = final.with_suffix(".json.tmp")
