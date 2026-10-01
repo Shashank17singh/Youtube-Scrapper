@@ -45,6 +45,7 @@ _CITATION_RE = re.compile(r"\[(\d+)\]")
 
 
 def get_client() -> Groq:
+    """Returns the Groq client instance, initializing it if necessary."""
     global _CLIENT
     if _CLIENT is None:
         if not GROQ_API_KEY:
@@ -90,6 +91,7 @@ def _chat(system: str, user: str) -> str:
 
 
 def build_context(chunks: list[Chunk]) -> str:
+    """Formats retrieved chunks into a single context string for the LLM prompt."""
     blocks = []
     for i, chunk in enumerate(chunks, start=1):
         blocks.append(f'[{i}] "{chunk.video_title}" @ {chunk.timestamp}\n{chunk.text}')
@@ -97,6 +99,7 @@ def build_context(chunks: list[Chunk]) -> str:
 
 
 def _citation(chunk: Chunk, distance: float) -> dict:
+    """Converts a chunk and its distance into a citation dictionary."""
     return {
         "title": chunk.video_title,
         "timestamp": chunk.timestamp,
