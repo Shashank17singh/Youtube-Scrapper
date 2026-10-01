@@ -76,6 +76,7 @@ class SentenceTransformerEmbedder:
         return [v.tolist() for v in vectors]
 
     def embed_query(self, text: str) -> list[float]:
+        """Embeds a single query string."""
         vector = self.model.encode(
             EMBED_QUERY_PREFIX + text,
             normalize_embeddings=True,
@@ -112,6 +113,7 @@ class FastEmbedder:
         return [v.tolist() for v in vectors]
 
     def embed_query(self, text: str) -> list[float]:
+        """Embeds a single query string using fastembed."""
         vector = list(self.model.embed([EMBED_QUERY_PREFIX + text]))[0]
         return vector.tolist()
 
