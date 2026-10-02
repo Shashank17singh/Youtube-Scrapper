@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Architecture - Youtube-Scrapper</title>
+              <meta name="color-scheme" content="dark">
+  <meta name="darkreader-lock">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Geist+Mono&family=Geist:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap');
+    
+    :root {
+      color-scheme: dark;
+      --bg-body: #050505;
+      --bg-container: #0a0a0a;
+      --node-fill: #171717;
+      --node-stroke: #404040;
+      --node-text: #f5f5f5;
+      --node-sub: #a3a3a3;
+      --edge-stroke: #525252;
+      --edge-text: #a3a3a3;
+      --hover-node-stroke: #a3a3a3;
+      --hover-node-fill: #262626;
+      --hover-edge: #d4d4d4;
+    }
+
+    body { 
+      margin: 0; 
+      padding: 2rem; 
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
+      background-color: var(--bg-body); 
+      color: var(--node-text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .diagram-container { 
+      width: 100%; 
+      max-width: 1200px;
+      overflow-x: auto; 
+      background-color: var(--bg-container); 
+      border: 1px solid #262626; 
+      border-radius: 12px; 
+      padding: 3rem; 
+      box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+    }
+    
+    svg { 
+      width: 100%; 
+      min-width: 960px; 
+      display: block; 
+    }
+
+    .node rect { 
+      fill: var(--node-fill); 
+      stroke: var(--node-stroke); 
+      stroke-width: 1.5; 
+      rx: 6; 
+      transition: all 0.2s ease;
+    }
+    .node:hover rect {
+      stroke: var(--hover-node-stroke);
+      fill: var(--hover-node-fill);
+    }
+    
+    .node text { 
+      fill: var(--node-text); 
+      font-size: 10px; 
+      font-weight: 600; 
+      transition: all 0.2s ease;
+      letter-spacing: 0.02em;
+    }
+    .node .sub { 
+      font-family: 'Geist Mono', 'Consolas', 'Courier New', monospace; 
+      font-size: 7.5px; 
+      font-weight: normal; 
+      fill: var(--node-sub); 
+    }
+    .node:hover text {
+      fill: #ffffff;
+    }
+    .node:hover .sub {
+      fill: #d4d4d4;
+    }
+    
+    .edge path { 
+      fill: none; 
+      stroke: var(--edge-stroke); 
+      stroke-width: 1.5; 
+      transition: all 0.2s ease;
+    }
+    .edge:hover path {
+      stroke: var(--hover-edge);
+      stroke-width: 2;
+    }
+    
+    .edge text { 
+      font-family: 'Geist Mono', 'Consolas', 'Courier New', monospace; 
+      font-size: 8px; 
+      fill: var(--edge-text); 
+      paint-order: stroke fill;
+      stroke: var(--bg-container);
+      stroke-width: 8px;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+    
+    .title { 
+      font-family: 'Instrument Serif', Georgia, serif; 
+      font-size: 26px; 
+      fill: var(--node-text); 
+    }
+    .subtitle { 
+      font-family: 'Geist Mono', 'Consolas', 'Courier New', monospace; 
+      font-size: 9px; 
+      fill: #737373; 
+    }
+    
+    .zone { 
+      fill: rgba(255,255,255,0.02); 
+      stroke: rgba(255,255,255,0.1); 
+      stroke-width: 1; 
+      rx: 8; 
+    }
+    .zone-label { 
+      font-family: 'Geist Mono', 'Consolas', 'Courier New', monospace; 
+      font-size: 7px; 
+      fill: rgba(255,255,255,0.4); 
+      letter-spacing: 0.14em; 
+    }
+
+    @keyframes flow {
+      to { stroke-dashoffset: -20; }
+    }
+    .edge path[stroke-dasharray] {
+      animation: flow 1.5s linear infinite;
+      stroke: var(--node-sub);
+    }
+  </style>
+</head>
+<body>
+  <div class="diagram-container">
+    <svg viewBox="0 0 960 600" role="img" aria-labelledby="title desc">
+      <title id="title">Youtube-Scrapper Architecture</title>
+      <desc id="desc">Retrieval-Augmented Generation system over YouTube</desc>
+      
+                                    <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#525252" style="fill: context-stroke;" />
+        </marker>
+      </defs>
+
+      <text x="40" y="60" class="title">Youtube-Scrapper</text>
+      <text x="40" y="80" class="subtitle">YouTube Playlist RAG Engine</text>
+
+      <!-- Zones -->
+      <rect x="40" y="120" width="880" height="160" class="zone" />
+      <text x="50" y="135" class="zone-label">INGESTION PIPELINE</text>
+
+      <rect x="40" y="300" width="880" height="140" class="zone" />
+      <text x="50" y="315" class="zone-label">QUERY ENGINE</text>
+
+      <rect x="40" y="460" width="880" height="120" class="zone" />
+      <text x="50" y="475" class="zone-label">USER INTERFACE</text>
+
+      <!-- Nodes -->
+      <g class="node" transform="translate(60, 180)">
+        <rect x="0" y="0" width="140" height="60" />
+        <text x="70" y="25" text-anchor="middle" >YouTube Playlist</text>
+        <text x="70" y="40" class="sub" text-anchor="middle" >yt-dlp</text>
+      </g>
+      <g class="node" transform="translate(240, 180)">
+        <rect x="0" y="0" width="140" height="60" />
+        <text x="70" y="25" text-anchor="middle" >Transcription</text>
+        <text x="70" y="40" class="sub" text-anchor="middle" >faster-whisper</text>
+      </g>
+      <g class="node" transform="translate(420, 180)">
+        <rect x="0" y="0" width="140" height="60" />
+        <text x="70" y="25" text-anchor="middle" >Chunking</text>
+        <text x="70" y="40" class="sub" text-anchor="middle" >Time-Window</text>
+      </g>
+      <g class="node" transform="translate(600, 180)">
+        <rect x="0" y="0" width="140" height="60" />
+        <text x="70" y="25" text-anchor="middle" >Embeddings</text>
+        <text x="70" y="40" class="sub" text-anchor="middle" >BAAI/bge-m3</text>
+      </g>
+      <g class="node" transform="translate(780, 180)">
+        <rect x="0" y="0" width="120" height="60" />
+        <text x="60" y="25" text-anchor="middle" >Qdrant Vector DB</text>
+        <text x="60" y="40" class="sub" text-anchor="middle" >Upsert</text>
+      </g>
+
+      <g class="node" transform="translate(60, 350)">
+        <rect x="0" y="0" width="140" height="60" />
+        <text x="70" y="25" text-anchor="middle" >User Query</text>
+        <text x="70" y="40" class="sub" text-anchor="middle" >Text Input</text>
+      </g>
+      <g class="node" transform="translate(420, 350)">
+        <rect x="0" y="0" width="140" height="60" />
+        <text x="70" y="25" text-anchor="middle" >LLM Generation</text>
+        <text x="70" y="40" class="sub" text-anchor="middle" >Groq</text>
+      </g>
+      <g class="node" transform="translate(760, 350)">
+        <rect x="0" y="0" width="140" height="60" />
+        <text x="70" y="25" text-anchor="middle" >FastAPI Backend</text>
+        <text x="70" y="40" class="sub" text-anchor="middle" >Answers+Timestamps</text>
+      </g>
+
+      <g class="node" transform="translate(420, 490)">
+        <rect x="0" y="0" width="140" height="60" />
+        <text x="70" y="25" text-anchor="middle" >Interactive Web UI</text>
+        <text x="70" y="40" class="sub" text-anchor="middle" >Vanilla JS</text>
+      </g>
+      <g class="node" transform="translate(760, 490)">
+        <rect x="0" y="0" width="140" height="60" />
+        <text x="70" y="25" text-anchor="middle" >YouTube Player</text>
+        <text x="70" y="40" class="sub" text-anchor="middle" >iframe API</text>
+      </g>
+
+      <!-- Edges -->
+      <g class="edge">
+        <!-- Ingestion -->
+        <path d="M 200 210 L 240 210" marker-end="url(#arrow)" />
+        <path d="M 380 210 L 420 210" marker-end="url(#arrow)" />
+        <path d="M 560 210 L 600 210" marker-end="url(#arrow)" />
+        <path d="M 740 210 L 780 210" marker-end="url(#arrow)" />
+
+        <!-- Query -->
+        <path d="M 130 350 L 130 290 L 670 290 L 670 240" marker-end="url(#arrow)" stroke-dasharray="4,3" />
+        <text x="400" y="293" text-anchor="middle" >Embed & Search</text>
+
+        <path d="M 840 240 L 840 290 L 490 290 L 490 350" marker-end="url(#arrow)" />
+        <text x="650" y="293" text-anchor="middle" >Top-K Chunks</text>
+
+        <path d="M 200 380 L 420 380" marker-end="url(#arrow)" />
+        
+        <path d="M 560 380 L 760 380" marker-end="url(#arrow)" />
+
+        <!-- UI -->
+        <path d="M 760 400 L 730 400 L 730 470 L 490 470 L 490 490" marker-end="url(#arrow)" />
+        <path d="M 560 520 L 760 520" marker-end="url(#arrow)" />
+      </g>
+    </svg>
+  </div>
+</body>
+</html>
