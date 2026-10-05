@@ -50,7 +50,7 @@ def _close_client() -> None:
     if _CLIENT is not None:
         try:
             _CLIENT.close()
-        except Exception:
+        except Exception:  # noqa: BLE001, S110
             pass
         _CLIENT = None
 

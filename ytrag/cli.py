@@ -172,7 +172,7 @@ def ingest(
                     )
                     break
 
-                except Exception as exc:
+                except Exception as exc:  # noqa: BLE001
                     if not network_up() and network_retries < MAX_NETWORK_RETRIES:
                         network_retries += 1
                         progress.console.print(
@@ -233,7 +233,7 @@ def reindex(
         "--replace",
         help="Delete each video's existing chunks first (needed if chunk settings changed).",
     ),
-    transcripts: Path = typer.Option(
+    transcripts: Path = typer.Option(  # noqa: B008
         None,
         "--transcripts",
         help="Read transcripts from this folder instead of ~/.ytrag/transcripts. "
@@ -471,7 +471,7 @@ def stats():
 
 @app.command(name="eval")
 def eval_cmd(
-    path: Path = typer.Option(DEFAULT_GOLDEN, "--path", help="Golden set JSON."),
+    path: Path = typer.Option(DEFAULT_GOLDEN, "--path", help="Golden set JSON."),  # noqa: B008
     k: int = typer.Option(5, "--k", help="Retrieval depth to score at."),
     verbose: bool = typer.Option(
         False, "--verbose", "-v", help="Show what each miss returned."
@@ -603,7 +603,7 @@ def preflight(
                 f"  [green]pass[/green] {name}" + (f" - {detail}" if detail else "")
             )
             return True
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             ok = False
             console.print(
                 f"  [red]FAIL[/red] {name} - {type(exc).__name__}: {str(exc)[:100]}"
@@ -674,7 +674,7 @@ def _probe_run_whisper() -> str:
         list(segments)
     except (NameError, AttributeError, TypeError, ImportError) as exc:
         raise RuntimeError(f"code path broken: {type(exc).__name__}: {exc}") from exc
-    except Exception:
+    except Exception:  # noqa: BLE001, S110
         pass  # file-not-found and friends are the expected outcome
     return "reached faster-whisper cleanly"
 
@@ -697,7 +697,7 @@ def _bundled_vectors() -> Path | None:
 
 @app.command()
 def export_vectors_cmd(
-    dest: Path = typer.Option(None, "--out", help="Defaults to ./index/vectors.npz"),
+    dest: Path = typer.Option(None, "--out", help="Defaults to ./index/vectors.npz"),  # noqa: B008
 ):
     """Save the built index so others can load it without embedding anything."""
     from ytrag.index import export_vectors
@@ -715,7 +715,7 @@ def export_vectors_cmd(
 
 @app.command()
 def load(
-    path: Path = typer.Option(
+    path: Path = typer.Option(  # noqa: B008
         None, "--path", help="Defaults to the repo's index/vectors.npz"
     ),
 ):
@@ -753,7 +753,7 @@ def _bundled_transcripts() -> Path | None:
 
 @app.command()
 def export_transcripts(
-    dest: Path = typer.Argument(
+    dest: Path = typer.Argument(  # noqa: B008
         None, help="Where to write them. Defaults to ./transcripts."
     ),
 ):

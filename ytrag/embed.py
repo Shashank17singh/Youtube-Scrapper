@@ -93,7 +93,7 @@ class FastEmbedder:
 
         with _quiet_load():
             self.model = TextEmbedding(fastembed_model)
-        dummy = list(self.model.embed(["test"]))[0]
+        dummy = next(iter(self.model.embed(["test"])))
         self.dim = len(dummy)
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
@@ -104,7 +104,7 @@ class FastEmbedder:
 
     def embed_query(self, text: str) -> list[float]:
         """Embeds a single query string using fastembed."""
-        vector = list(self.model.embed([EMBED_QUERY_PREFIX + text]))[0]
+        vector = next(iter(self.model.embed([EMBED_QUERY_PREFIX + text])))
         return vector.tolist()
 
 
@@ -116,7 +116,7 @@ def get_embedder() -> Embedder:
     global _EMBEDDER
     if _EMBEDDER is None:
         try:
-            import fastembed
+            import fastembed  # noqa: F401
 
             _EMBEDDER = FastEmbedder()
         except ImportError:

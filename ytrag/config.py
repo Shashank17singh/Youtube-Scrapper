@@ -29,28 +29,28 @@ WHISPER_COMPUTE = os.getenv("YTRAG_WHISPER_COMPUTE", "")  # blank = pick per dev
 WHISPER_LANG = os.getenv(
     "YTRAG_WHISPER_LANG", "en"
 )  # see README §6.0 - TEST THIS FIRST
-WHISPER_BEAM = int(os.getenv("YTRAG_WHISPER_BEAM", 5))
-WHISPER_BATCH = int(os.getenv("YTRAG_WHISPER_BATCH", 8))
-CHUNK_SECONDS = int(os.getenv("YTRAG_CHUNK_SECONDS", 75))
-CHUNK_OVERLAP_SECONDS = int(os.getenv("YTRAG_CHUNK_OVERLAP", 15))
-MIN_CHUNK_WORDS = int(os.getenv("YTRAG_MIN_CHUNK_WORDS", 15))
-LINK_REWIND_SECONDS = int(os.getenv("YTRAG_LINK_REWIND", 5))
+WHISPER_BEAM = int(os.getenv("YTRAG_WHISPER_BEAM", 5))  # noqa: PLW1508
+WHISPER_BATCH = int(os.getenv("YTRAG_WHISPER_BATCH", 8))  # noqa: PLW1508
+CHUNK_SECONDS = int(os.getenv("YTRAG_CHUNK_SECONDS", 75))  # noqa: PLW1508
+CHUNK_OVERLAP_SECONDS = int(os.getenv("YTRAG_CHUNK_OVERLAP", 15))  # noqa: PLW1508
+MIN_CHUNK_WORDS = int(os.getenv("YTRAG_MIN_CHUNK_WORDS", 15))  # noqa: PLW1508
+LINK_REWIND_SECONDS = int(os.getenv("YTRAG_LINK_REWIND", 5))  # noqa: PLW1508
 EMBED_MODEL = os.getenv("YTRAG_EMBED_MODEL", "all-MiniLM-L6-v2")
-EMBED_BATCH = int(os.getenv("YTRAG_EMBED_BATCH", 16))
+EMBED_BATCH = int(os.getenv("YTRAG_EMBED_BATCH", 16))  # noqa: PLW1508
 EMBED_QUERY_PREFIX = os.getenv("YTRAG_EMBED_QUERY_PREFIX", "")
-DOWNLOAD_SLEEP_MIN = float(os.getenv("YTRAG_DOWNLOAD_SLEEP_MIN", 2))
-DOWNLOAD_SLEEP_MAX = float(os.getenv("YTRAG_DOWNLOAD_SLEEP_MAX", 6))
+DOWNLOAD_SLEEP_MIN = float(os.getenv("YTRAG_DOWNLOAD_SLEEP_MIN", 2))  # noqa: PLW1508
+DOWNLOAD_SLEEP_MAX = float(os.getenv("YTRAG_DOWNLOAD_SLEEP_MAX", 6))  # noqa: PLW1508
 COOKIES_FROM_BROWSER = os.getenv("YTRAG_COOKIES_FROM_BROWSER", "")
 COOKIES_FILE = os.getenv("YTRAG_COOKIES_FILE", "")
 QDRANT_URL = os.getenv("QDRANT_URL", "")
 QDRANT_PATH = Path(os.getenv("YTRAG_QDRANT_PATH", ROOT / "qdrant"))
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY", "")
 COLLECTION = os.getenv("YTRAG_COLLECTION", "dsa_lectures")
-UPSERT_BATCH = int(os.getenv("YTRAG_UPSERT_BATCH", 128))
-TOP_K = int(os.getenv("YTRAG_TOP_K", 6))
-MAX_DISTANCE = float(os.getenv("YTRAG_MAX_DISTANCE", 0.6))
-CONFIDENT_DISTANCE = float(os.getenv("YTRAG_CONFIDENT_DISTANCE", 0.45))
-TITLE_BOOST = float(os.getenv("YTRAG_TITLE_BOOST", 0.06))
+UPSERT_BATCH = int(os.getenv("YTRAG_UPSERT_BATCH", 128))  # noqa: PLW1508
+TOP_K = int(os.getenv("YTRAG_TOP_K", 6))  # noqa: PLW1508
+MAX_DISTANCE = float(os.getenv("YTRAG_MAX_DISTANCE", 0.6))  # noqa: PLW1508
+CONFIDENT_DISTANCE = float(os.getenv("YTRAG_CONFIDENT_DISTANCE", 0.45))  # noqa: PLW1508
+TITLE_BOOST = float(os.getenv("YTRAG_TITLE_BOOST", 0.06))  # noqa: PLW1508
 _DEFAULT_BACKEND = (
     "gemini"
     if (os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY"))
@@ -63,6 +63,6 @@ LLM_MODEL = os.getenv("YTRAG_LLM_MODEL", "")  # blank = per-backend default
 GROQ_MODEL = os.getenv("YTRAG_GROQ_MODEL", "openai/gpt-oss-120b")
 GEMINI_MODEL = os.getenv("YTRAG_GEMINI_MODEL", "gemini-3.8-flash")
 REFUSAL = "Ye topic in lectures me cover nahi hua."
-MAX_QUESTION_CHARS = int(os.getenv("YTRAG_MAX_QUESTION_CHARS", 500))
-RATE_LIMIT_REQUESTS = int(os.getenv("YTRAG_RATE_LIMIT_REQUESTS", 20))
-RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("YTRAG_RATE_LIMIT_WINDOW", 60))
+MAX_QUESTION_CHARS = int(os.getenv("YTRAG_MAX_QUESTION_CHARS", 500))  # noqa: PLW1508
+RATE_LIMIT_REQUESTS = int(os.getenv("YTRAG_RATE_LIMIT_REQUESTS", 20))  # noqa: PLW1508
+RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("YTRAG_RATE_LIMIT_WINDOW", 60))  # noqa: PLW1508

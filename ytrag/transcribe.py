@@ -31,7 +31,7 @@ def _resolve_device() -> tuple[str, str]:
             import ctranslate2
 
             device = "cuda" if ctranslate2.get_cuda_device_count() > 0 else "cpu"
-        except Exception:
+        except Exception:  # noqa: BLE001
             device = "cpu"
 
     compute = WHISPER_COMPUTE or ("float16" if device == "cuda" else "int8")
