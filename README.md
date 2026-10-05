@@ -16,7 +16,7 @@
 
 ## Overview
 
-Developed a Retrieval-Augmented Generation (RAG) system capable of analyzing vast YouTube playlists to extract grounded answers linked to precise video timestamps. Features custom BAAI/bge-m3 embeddings for Hinglish queries, an optimized Qdrant vector database, and fault-tolerant asynchronous batched video transcription utilizing Faster-Whisper.
+A RAG system that answers questions by analyzing entire YouTube playlists and citing precise video timestamps. It handles Hinglish queries using BAAI/bge-m3 embeddings, stores them in Qdrant, and runs asynchronous video transcription via Faster-Whisper.
 
 ---
 
