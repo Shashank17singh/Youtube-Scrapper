@@ -1,7 +1,6 @@
-"""Pluggable embedder.
-
-One backend today (sentence-transformers), but everything downstream talks to
-the Protocol, so swapping the model is a config change plus `ytrag reindex`.
+"""
+Provides integration layers for various embedding models (e.g., FastEmbed,
+SentenceTransformers) to vectorize text segments for Qdrant index insertion.
 """
 
 import contextlib
@@ -17,7 +16,6 @@ _BENIGN = re.compile(r"unauthenticated requests to the HF Hub|Loading weights:|^
 
 @contextlib.contextmanager
 def _quiet_load():
-    """Swallow the known-benign loader chatter, re-emit everything else."""
     captured = io.StringIO()
     try:
         with contextlib.redirect_stderr(captured):
@@ -38,14 +36,6 @@ class Embedder(Protocol):
 
 
 class SentenceTransformerEmbedder:
-    """Local embeddings. Default is bge-m3 (1024-dim, multilingual).
-
-    bge-m3 needs no instruction prefix. Some other models do, and only on the
-    query side - bge-*-en-v1.5 wants "Represent this sentence for searching
-    relevant passages: ". That is what EMBED_QUERY_PREFIX is for. Getting this
-    wrong degrades results silently: no error, just worse answers.
-    """
-
     def __init__(self, model_name: str = EMBED_MODEL, batch_size: int = EMBED_BATCH):
         from sentence_transformers import SentenceTransformer
 
@@ -70,7 +60,6 @@ class SentenceTransformerEmbedder:
         return [v.tolist() for v in vectors]
 
     def embed_query(self, text: str) -> list[float]:
-        """Embeds a single query string."""
         vector = self.model.encode(
             EMBED_QUERY_PREFIX + text,
             normalize_embeddings=True,
@@ -80,8 +69,6 @@ class SentenceTransformerEmbedder:
 
 
 class FastEmbedder:
-    """Lightweight embeddings using fastembed. Great for low-memory deployment."""
-
     def __init__(self, model_name: str = EMBED_MODEL, batch_size: int = EMBED_BATCH):
         from fastembed import TextEmbedding
 
@@ -103,7 +90,6 @@ class FastEmbedder:
         return [v.tolist() for v in vectors]
 
     def embed_query(self, text: str) -> list[float]:
-        """Embeds a single query string using fastembed."""
         vector = next(iter(self.model.embed([EMBED_QUERY_PREFIX + text])))
         return vector.tolist()
 
@@ -112,7 +98,6 @@ _EMBEDDER: Embedder | None = None
 
 
 def get_embedder() -> Embedder:
-    """Load the embedder once per process. Uses fastembed if available to save memory."""
     global _EMBEDDER
     if _EMBEDDER is None:
         try:

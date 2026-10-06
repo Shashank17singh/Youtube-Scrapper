@@ -1,9 +1,6 @@
-"""Segment[] -> Chunk[], merged into overlapping time windows.
-
-Deliberately hand-written. A generic text splitter (RecursiveCharacterText-
-Splitter and friends) operates on one concatenated string and throws the
-timestamps away. The timestamp *is* the product here, so chunking happens in
-the time domain, on the segment list, and never splits a segment.
+"""
+Groups transcribed segments into overlapping semantic chunks of appropriate
+length to facilitate accurate context retrieval without losing continuity.
 """
 
 import re
@@ -20,11 +17,6 @@ _SENTENCE_SPLIT = re.compile(r"[.!?\n]+")
 
 
 def is_repetitive(text: str, threshold: float = 0.6) -> bool:
-    """True if one sentence makes up most of the chunk.
-
-    This is Whisper's loop hallucination surviving into a chunk. These are
-    retrieval poison: they match everything and say nothing.
-    """
     sentences = [s.strip().lower() for s in _SENTENCE_SPLIT.split(text) if s.strip()]
     if len(sentences) < 3:
         return False
@@ -39,7 +31,6 @@ def chunk_segments(
     overlap_seconds: int = CHUNK_OVERLAP_SECONDS,
     min_words: int = MIN_CHUNK_WORDS,
 ) -> list[Chunk]:
-    """Greedy time-window merge with segment-aligned overlap."""
     segments = [s for s in segments if s.text.strip()]
     if not segments:
         return []

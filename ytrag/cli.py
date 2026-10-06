@@ -1,4 +1,5 @@
-"""typer entrypoint.
+"""
+Typer entrypoint for the YT RAG pipeline.
 
 ytrag langtest <url>              # decide the Whisper language flag (do this first)
 ytrag ingest --playlist <URL>     # download -> transcribe -> chunk -> upsert

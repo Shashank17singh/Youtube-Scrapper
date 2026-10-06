@@ -1,7 +1,6 @@
-"""Audio -> Segment[], cached to JSON.
-
-The cache check at the top of transcribe() is the single most important line
-in this codebase. Re-transcribing a 40-video playlist by accident costs hours.
+"""
+Handles interaction with faster-whisper to transcribe audio files into text
+segments. Supports batched/sequential inference on CUDA or CPU int8.
 """
 
 import json
@@ -24,7 +23,6 @@ _MODEL_CACHE: dict[tuple, object] = {}
 
 
 def _resolve_device() -> tuple[str, str]:
-    """Pick device and compute type, preferring CUDA when it actually works."""
     device = WHISPER_DEVICE
     if device == "auto":
         try:
@@ -39,11 +37,6 @@ def _resolve_device() -> tuple[str, str]:
 
 
 def get_model(model_name: str = WHISPER_MODEL):
-    """Load (and cache) a faster-whisper model, falling back to CPU if CUDA fails.
-
-    A GPU newer than the shipped ctranslate2 build will load and then fail at
-    the first inference, so the fallback here is deliberately broad.
-    """
     from faster_whisper import WhisperModel
 
     device, compute = _resolve_device()
@@ -66,11 +59,6 @@ def get_model(model_name: str = WHISPER_MODEL):
 
 
 def get_batched_model(model_name: str = WHISPER_MODEL):
-    """Wrap the model in faster-whisper's batched pipeline.
-
-    Same weights, same output quality - it just feeds several VAD-detected
-    speech regions through the encoder at once instead of one at a time.
-    """
     from faster_whisper import BatchedInferencePipeline
 
     model = get_model(model_name)
@@ -81,14 +69,6 @@ def get_batched_model(model_name: str = WHISPER_MODEL):
 
 
 def run_whisper(audio_path: str, language: str, model_name: str = WHISPER_MODEL):
-    """Transcribe one audio file. Returns (segment_iterator, info).
-
-    vad_filter drops silence outright, and condition_on_previous_text=False
-    stops Whisper's loop hallucination - on a long pause or a music sting it
-    otherwise repeats the previous phrase over and over. The batched pipeline
-    treats each speech region independently, so it never conditions on
-    previous text in the first place.
-    """
     if WHISPER_BATCH > 0:
         try:
             return get_batched_model(model_name).transcribe(
@@ -117,7 +97,6 @@ def transcript_path(video_id: str, directory: Path | None = None) -> Path:
 
 
 def load_transcript(video_id: str, directory: Path | None = None) -> dict | None:
-    """Return the cached transcript dict, or None if absent/corrupt."""
     path = transcript_path(video_id, directory)
     if not path.exists():
         return None
@@ -145,12 +124,6 @@ def segments_from_transcript(data: dict) -> list[Segment]:
 def _write_transcript(
     video: Video, language: str, model_name: str, segments: list[Segment]
 ) -> None:
-    """Write atomically.
-
-    A Ctrl-C part way through a plain write leaves a truncated JSON file that
-    the cache check then trusts forever. Temp file + os.replace makes the
-    transcript either fully there or not there at all.
-    """
     payload = {
         "video_id": video.video_id,
         "title": video.title,
@@ -175,7 +148,6 @@ def transcribe(
     model_name: str = WHISPER_MODEL,
     keep_audio: bool = False,
 ) -> list[Segment]:
-    """Transcribe a video, using the cached transcript when one exists."""
     language = language or WHISPER_LANG
 
     if not force:

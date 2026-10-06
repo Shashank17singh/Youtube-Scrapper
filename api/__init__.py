@@ -1,4 +1,5 @@
-"""FastAPI wrapper around answer(), plus the single-page UI.
+"""
+FastAPI wrapper around answer(), plus the single-page UI.
 
 Phase 4 asks for a rate limit and a question-length cap before this goes
 public - both are here, because "add it later" never happens.

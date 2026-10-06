@@ -1,13 +1,6 @@
-"""Retrieve -> grounded answer + citations.
-
-The important part of this module is what it does when retrieval comes back
-empty: it returns the refusal without calling the LLM at all.
-
-The model knows DSA perfectly well. If it is handed junk context it will
-happily answer from its own training and attach your timestamps to it - the
-student clicks the link and you are talking about something else entirely.
-That is strictly worse than saying "cover nahi hua".
-"""
+"""Provides LLM integration (Groq/Gemini) to process transcript excerpts and
+answer user queries in a grounded manner, with citations pointing back to the
+original video segments."""
 
 import re
 
@@ -45,7 +38,6 @@ _CITATION_RE = re.compile(r"\[(\d+)\]")
 
 
 def get_client() -> Groq:
-    """Returns the Groq client instance, initializing it if necessary."""
     global _CLIENT
     if _CLIENT is None:
         if not GROQ_API_KEY:
@@ -55,10 +47,9 @@ def get_client() -> Groq:
 
 
 def _chat(system: str, user: str) -> str:
-    """One completion, from whichever backend is configured.
-
-    Kept deliberately small: the explanation is a garnish on top of retrieval,
-    so swapping providers should never be more than this function.
+    """
+    Routes the inference request to the configured backend (Groq or Gemini).
+    Isolates the rest of the application from provider-specific SDK differences.
     """
     backend = LLM_BACKEND.lower()
 
@@ -93,7 +84,6 @@ def _chat(system: str, user: str) -> str:
 
 
 def build_context(chunks: list[Chunk]) -> str:
-    """Formats retrieved chunks into a single context string for the LLM prompt."""
     blocks = []
     for i, chunk in enumerate(chunks, start=1):
         blocks.append(f'[{i}] "{chunk.video_title}" @ {chunk.timestamp}\n{chunk.text}')
@@ -101,7 +91,6 @@ def build_context(chunks: list[Chunk]) -> str:
 
 
 def _citation(chunk: Chunk, distance: float) -> dict:
-    """Converts a chunk and its distance into a citation dictionary."""
     return {
         "title": chunk.video_title,
         "timestamp": chunk.timestamp,
@@ -113,11 +102,6 @@ def _citation(chunk: Chunk, distance: float) -> dict:
 
 
 def _renumber(text: str, hits: list[tuple[Chunk, float]]) -> tuple[str, list[dict]]:
-    """Keep only the citations the model actually used, and renumber them 1..N.
-
-    Without this the student sees six links under an answer that only used
-    one, and stops trusting any of them.
-    """
     order: list[int] = []
     for match in _CITATION_RE.finditer(text):
         idx = int(match.group(1))
@@ -142,7 +126,10 @@ def answer(
     video_id: str | None = None,
     max_distance: float | None = None,
 ) -> dict:
-    """-> {"answer", "citations", "grounded", "retrieved"}"""
+    """
+    Full RAG pipeline: searches the vector database, formats the retrieved chunks,
+    and asks the LLM to generate an answer with inline citations.
+    """
     question = question.strip()
     if not question:
         return {"answer": REFUSAL, "citations": [], "grounded": False, "retrieved": 0}
@@ -175,26 +162,10 @@ def answer(
 def retrieve_only(
     question: str, top_k: int = TOP_K, filtered: bool = False
 ) -> list[tuple[Chunk, float]]:
-    """Retrieval without the LLM - used by evaluate.py and `ytrag search`.
-
-    Unfiltered by default: 2.0 is the maximum possible cosine distance, so
-    nothing is dropped. Eval wants to see what retrieval actually returned,
-    including the results the MAX_DISTANCE cutoff would have thrown away.
-    """
     return search(question, top_k=top_k, max_distance=None if filtered else 2.0)
 
 
 def _is_confident(question: str, hits: list[tuple[Chunk, float]]) -> bool:
-    """Is the top result trustworthy enough to present without a caveat?
-
-    Distance alone cannot answer this - measured on the real index, off-topic
-    questions score *better* than some genuine ones ("React hooks" 0.463 beats
-    "number of islands" 0.568), so any single cutoff mislabels one group.
-
-    Two signals together work far better. Either the lecture title actually
-    mentions what was asked, or the match is close enough that the topic is
-    unambiguous even when no title names it.
-    """
     if not hits:
         return False
     chunk, distance = hits[0]

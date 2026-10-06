@@ -1,4 +1,7 @@
-"""Small helpers shared across the package."""
+"""
+Utility functions including reliable network connectivity checks, automatic
+pausing when offline, and exponential backoff retry mechanisms.
+"""
 
 import socket
 import time
@@ -10,7 +13,6 @@ _PROBE_HOSTS = [("www.youtube.com", 443), ("1.1.1.1", 53), ("8.8.8.8", 53)]
 
 
 def network_up(timeout: float = 4.0) -> bool:
-    """True if any probe host is reachable."""
     for host, port in _PROBE_HOSTS:
         try:
             with socket.create_connection((host, port), timeout=timeout):
@@ -25,13 +27,6 @@ def wait_for_network(
     poll_seconds: float = 30.0,
     on_wait: Callable[[str], None] | None = None,
 ) -> bool:
-    """Block until the network comes back. Returns False if it never does.
-
-    An overnight ingest should sit out a router reboot or an ISP blip rather
-    than burning through the remaining playlist failing instantly. Six hours
-    is deliberately generous: waiting costs nothing but time, whereas giving
-    up costs a manual restart the next morning.
-    """
     if network_up():
         return True
 
@@ -62,14 +57,6 @@ def with_retry(
     is_rate_limit: Callable[[Exception], bool] | None = None,
     rate_limit_delay: float = 300.0,
 ) -> T:
-    """Run fn, retrying transient failures with exponential backoff.
-
-    For the network steps in a long ingest - a YouTube download or a Qdrant
-    upsert. A flaky connection during a multi-hour unattended run should cost
-    a few seconds of waiting, not the rest of the playlist.
-
-    Both call sites are idempotent, so a retry can never double-apply.
-    """
     delay = base_delay
     for attempt in range(1, attempts + 1):
         try:

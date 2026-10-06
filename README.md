@@ -167,22 +167,4 @@ This project is configured to run effortlessly on platforms like Render or Railw
 
 ---
 
-## Deep Codebase Analysis
 
-| File                           | Purpose / Details                                                      |
-| ------------------------------ | ---------------------------------------------------------------------- |
-| `api\__init__.py`              | Core component logic and implementation details.                       |
-| `api\main.py`                  | FastAPI wrapper around answer(), plus the single-page UI.              |
-| `cleaned_diff.txt`             | Core component logic and implementation details.                       |
-| `compare_out.txt`              | Binary or unreadable file.                                             |
-| `compare_out2.txt`             | Core component logic and implementation details.                       |
-| `compare_out_utf8.txt`         | Binary or unreadable file.                                             |
-| `diff.txt`                     | Binary or unreadable file.                                             |
-| `diff_out.txt`                 | Core component logic and implementation details.                       |
-| `embed_diff.txt`               | Core component logic and implementation details.                       |
-| `eval\golden.json`             | Core component logic and implementation details.                       |
-| `eval\golden_draft.json`       | Core component logic and implementation details.                       |
-| `main.py`                      | Convenience entrypoint so `uv run main.py ...` works like `ytrag ...`. |
-| `transcripts\-AEEZEWOA-E.json` | Core component logic and implementation details.                       |
-| `transcripts\-CvRpL_iUKo.json` | Core component logic and implementation details.                       |
-| `transcripts\-g6h0Ok1Buk.json` | Core component logic and implementation details.                       |

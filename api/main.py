@@ -1,7 +1,6 @@
-"""FastAPI wrapper around answer(), plus the single-page UI.
-
-Phase 4 asks for a rate limit and a question-length cap before this goes
-public - both are here, because "add it later" never happens.
+"""
+FastAPI server configuration and endpoints mapping for the Youtube-Scrapper
+RAG interface.
 """
 
 import time
@@ -25,13 +24,6 @@ STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Load the embedding model before accepting traffic.
-
-    Without this the model loads lazily on the first question, so the first
-    student to use it waits ~14 seconds staring at a spinner while every
-    subsequent search takes one. Better to spend that time at startup, in the
-    terminal, where a wait is expected and explained.
-    """
     from ytrag.embed import get_embedder
 
     print("Loading embedding model (first run downloads it)...", flush=True)
@@ -86,11 +78,6 @@ def stats():
 
 @app.post("/search")
 def search(payload: AskRequest, request: Request):
-    """The main endpoint. No LLM, so no quota, no latency, no hallucination.
-
-    Rate limiting is deliberately not applied here - this costs nothing beyond
-    one embedding and one vector query, so there is no reason to ration it.
-    """
     return search_only(payload.question, top_k=payload.top_k)
 
 
@@ -117,7 +104,6 @@ def ask(payload: AskRequest, request: Request):
 
 @app.get("/meta")
 def meta():
-    """Numbers the front page shows. Cheap: no embedding, no LLM."""
     from ytrag.transcribe import cached_video_ids, load_transcript
 
     ids = cached_video_ids()

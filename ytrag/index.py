@@ -1,8 +1,7 @@
-"""Qdrant upsert + query.
-
-Same client as day14/day15, but with two differences that matter at this scale:
-the collection name carries the embedding dim, and point IDs are derived from
-a stable chunk_id so re-ingesting overwrites instead of duplicating.
+"""
+Qdrant vector database interface. Handles collection management, document
+insertion (upsert), semantic searches using vector similarity (cosine), and
+importing/exporting indexed vectors to disk (.npz).
 """
 
 import atexit
@@ -40,12 +39,6 @@ _CLIENT: QdrantClient | None = None
 
 
 def _close_client() -> None:
-    """Release the store before the interpreter tears down.
-
-    Qdrant's own __del__ runs during shutdown, by which point sys.meta_path is
-    gone and its close() raises ImportError. Harmless, but it prints a
-    traceback after a successful command and looks like a crash.
-    """
     global _CLIENT
     if _CLIENT is not None:
         try:
@@ -59,13 +52,6 @@ atexit.register(_close_client)
 
 
 def get_client() -> QdrantClient:
-    """Qdrant Cloud when configured, otherwise an embedded local store.
-
-    The local mode matters more than it looks: it means someone can clone this
-    repo and have a working index with no Qdrant account, no Docker, and no
-    signup - just a folder on disk. QDRANT_URL upgrades them to the hosted
-    cluster whenever they want one.
-    """
     global _CLIENT
     if _CLIENT is None:
         if QDRANT_URL:
@@ -87,18 +73,10 @@ def get_client() -> QdrantClient:
 
 
 def collection_name() -> str:
-    """e.g. 'dsa_lectures_1024'.
-
-    Qdrant rejects vectors whose size does not match the collection, so
-    stamping the dim into the name means switching embedding models creates a
-    new collection instead of erroring - and lets a 1024-dim local index and a
-    384-dim deploy index live side by side.
-    """
     return f"{COLLECTION}_{get_embedder().dim}"
 
 
 def ensure_collection() -> str:
-    """Create the collection if it does not exist. Safe to call every time."""
     client = get_client()
     name = collection_name()
 
@@ -120,7 +98,10 @@ def ensure_collection() -> str:
 
 
 def upsert_chunks(chunks: list[Chunk], batch_size: int = UPSERT_BATCH) -> int:
-    """Embed and upsert. Idempotent: same chunk_id -> same point ID -> overwrite."""
+    """
+    Batches and inserts transcribed chunks into the Qdrant index.
+    Embedding is the bottleneck, so we do it in configurable batches.
+    """
     if not chunks:
         return 0
 
@@ -148,7 +129,6 @@ def upsert_chunks(chunks: list[Chunk], batch_size: int = UPSERT_BATCH) -> int:
 
 
 def delete_video(video_id: str) -> None:
-    """Remove every chunk for one video. Used when re-chunking with new settings."""
     client = get_client()
     name = ensure_collection()
     client.delete(
@@ -161,12 +141,6 @@ def delete_video(video_id: str) -> None:
 
 
 def indexed_video_ids() -> set[str]:
-    """Which videos already have chunks in the collection.
-
-    Lets a re-run skip the embed+upsert for work already done. Without this,
-    restarting a partly-finished ingest re-embeds every cached transcript
-    before reaching new material - minutes of idle GPU each time.
-    """
     client = get_client()
     name = collection_name()
     if not client.collection_exists(name):

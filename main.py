@@ -1,5 +1,6 @@
-"""Convenience entrypoint so `uv run main.py ...` works like `ytrag ...`."""
-
+"""
+Entry point for the ytrag CLI application.
+"""
 from ytrag.cli import app
 
 

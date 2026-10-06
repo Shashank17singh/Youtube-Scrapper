@@ -1,6 +1,7 @@
-"""All tunables live here, every one of them env-driven.
-
-Nothing else in the package reads os.getenv directly.
+"""
+Central configuration loader. Reads settings from `.env` and environment
+variables to establish system-wide defaults for Whisper, models, API keys,
+directories, and Qdrant database locations.
 """
 
 import logging

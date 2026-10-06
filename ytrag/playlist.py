@@ -1,4 +1,7 @@
-"""Playlist -> Video[], and Video -> a local audio file."""
+"""
+Integration with yt-dlp to extract playlist metadata and reliably download
+audio tracks, handling bot challenges and rate limiting gracefully.
+"""
 
 from pathlib import Path
 
@@ -25,12 +28,6 @@ def _is_bot_challenge(exc: Exception) -> bool:
 
 
 def _cookie_opts() -> dict:
-    """Cookies, if configured. A cookies.txt file wins over browser extraction.
-
-    Browser extraction only really works for Firefox on Windows - Chrome and
-    Edge encrypt their cookie stores with App-Bound Encryption, which yt-dlp
-    cannot decrypt. Hence the file option.
-    """
     if COOKIES_FILE:
         return {"cookiefile": COOKIES_FILE}
     if COOKIES_FROM_BROWSER:
@@ -42,11 +39,6 @@ _QUIET = {"quiet": True, "no_warnings": True, "noprogress": True}
 
 
 def list_playlist(playlist_url: str) -> list[Video]:
-    """List every video in a playlist in a single request.
-
-    `extract_flat` is deliberate: without it yt-dlp resolves each video
-    individually, so a 40-video playlist becomes 40 round trips.
-    """
     import yt_dlp
 
     opts = {**_QUIET, "extract_flat": "in_playlist", "skip_download": True}
@@ -66,7 +58,6 @@ def list_playlist(playlist_url: str) -> list[Video]:
 
 
 def find_audio(video_id: str) -> Path | None:
-    """Return an already-downloaded audio file for this video, if any."""
     for path in sorted(AUDIO_DIR.glob(f"{video_id}.*")):
         if path.suffix not in {".part", ".ytdl", ".tmp"}:
             return path
@@ -74,14 +65,6 @@ def find_audio(video_id: str) -> Path | None:
 
 
 def download_audio(video: Video, force: bool = False) -> Path:
-    """Download bestaudio to ~/.ytrag/audio/<video_id>.<ext>.
-
-    Note there is no ffmpeg postprocessing step here. faster-whisper decodes
-    audio itself through PyAV (which bundles its own FFmpeg libraries), so it
-    reads the raw m4a/webm directly. That removes the ffmpeg install, and it
-    removes the 16kHz WAVs - which run ~115 MB per hour of video and will
-    quietly eat 40-50 GB across a full playlist.
-    """
     existing = find_audio(video.video_id)
     if existing and not force:
         return existing
@@ -120,6 +103,5 @@ def download_audio(video: Video, force: bool = False) -> Path:
 
 
 def delete_audio(video_id: str) -> None:
-    """Drop the audio once a transcript exists. It is fully regenerable."""
     for path in AUDIO_DIR.glob(f"{video_id}.*"):
         path.unlink(missing_ok=True)
