@@ -3,6 +3,7 @@ FastAPI server configuration and endpoints mapping for the Youtube-Scrapper
 RAG interface.
 """
 
+import logging
 import time
 from collections import defaultdict, deque
 from contextlib import asynccontextmanager
@@ -31,6 +32,8 @@ async def lifespan(app: FastAPI):
     print(f"Ready: {embedder.name} ({embedder.dim}-dim)", flush=True)
     yield
 
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="YT Lecture RAG", version="0.1.0", lifespan=lifespan)
 
@@ -86,20 +89,23 @@ def ask(payload: AskRequest, request: Request):
     _rate_limit(request)
     try:
         return answer_question(payload.question, top_k=payload.top_k)
-    except RateLimitError:
+    except RateLimitError as exc:
         raise HTTPException(
             status_code=429,
             detail="The language model's usage quota is exhausted. "
             "This is a provider limit, not a problem with your question - try again later.",
-        )
+        ) from exc
     except APIStatusError as exc:
         raise HTTPException(
             status_code=502, detail=f"Language model error: {exc.status_code}"
-        )
+        ) from exc
     except RuntimeError as exc:
-        raise HTTPException(status_code=503, detail=str(exc))
-    except Exception as exc:  # noqa: BLE001
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("Request failed")
+        raise HTTPException(
+            status_code=500, detail="The request failed. Please try again."
+        ) from exc
 
 
 @app.get("/meta")

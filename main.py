@@ -1,6 +1,7 @@
 """
 Entry point for the ytrag CLI application.
 """
+
 from ytrag.cli import app
 
 
