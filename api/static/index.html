@@ -18,6 +18,10 @@
       rel="stylesheet"
     />
     <style>
+/* Hallmark · checked: 2026-10-31 · genre: modern-minimal (inferred)
+ * fixed: 8 tokens lifted, focus, motion and states added · structural: left for the owner, see the audit
+ * built: the project · redesign: polish · v2.0.0 */
+
       :root {
         --bg: #090b0e;
         --bg-soft: #0f1216;
@@ -26,16 +30,25 @@
         --border: #222a38;
         --border-lit: #2e3a4e;
         --text: #e2e8f4;
-        --text-dim: #8896aa;
-        --text-faint: #4f6070;
+        --text-dim: #9aa8ba;
+        --text-faint: #8a99ac;
         --accent: #3b82f6;
+  --accent-strong: #2563eb;
         --accent-glow: #3b82f620;
         --accent-dim: #3b82f614;
         --green: #22c55e;
         --amber: #f59e0b;
         --red: #ef4444;
         --radius: 10px;
-      }
+  --color-blue-800: #0d1117;
+  --color-white: #fff;
+  --color-orange-400-a05: #f59e0b0c;
+  --color-orange-400-a13: #f59e0b22;
+  --color-black: #000;
+  --color-white-a02: #ffffff06;
+  --font-sans: Inter, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", Consolas, monospace;
+}
       * {
         box-sizing: border-box;
         margin: 0;
@@ -47,12 +60,7 @@
       body {
         background: var(--bg);
         color: var(--text);
-        font-family:
-          Inter,
-          -apple-system,
-          "Segoe UI",
-          Roboto,
-          sans-serif;
+        font-family: var(--font-sans);
         font-size: 14px;
         line-height: 1.6;
         -webkit-font-smoothing: antialiased;
@@ -62,7 +70,7 @@
       /* ── Header ── */
       header {
         border-bottom: 1px solid var(--border);
-        background: linear-gradient(180deg, #0d1117 0%, var(--bg) 100%);
+        background: linear-gradient(180deg, var(--color-blue-800) 0%, var(--bg) 100%);
         padding: 24px 32px 28px;
       }
       .header-inner {
@@ -75,8 +83,6 @@
         gap: 7px;
         font-size: 11px;
         font-weight: 600;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
         color: var(--accent);
         margin-bottom: 14px;
       }
@@ -182,7 +188,6 @@
         font-size: 14px;
       }
       input[type="text"]:focus {
-        outline: none;
       }
       input[type="text"]::placeholder {
         color: var(--text-faint);
@@ -192,8 +197,8 @@
         padding: 9px 20px;
         border: 0;
         border-radius: 7px;
-        background: var(--accent);
-        color: #fff;
+        background: var(--accent-strong);
+        color: var(--color-white);
         font: inherit;
         font-size: 13.5px;
         font-weight: 600;
@@ -207,7 +212,9 @@
         filter: brightness(1.1);
       }
       button.search-btn:disabled {
-        opacity: 0.45;
+        background: var(--disabled-fill);
+  color: var(--disabled-ink);
+  cursor: not-allowed;
         cursor: default;
       }
 
@@ -215,8 +222,6 @@
       .section-label {
         font-size: 10.5px;
         font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
         color: var(--text-faint);
         margin: 24px 0 10px;
       }
@@ -274,7 +279,7 @@
       .result .at {
         grid-row: 1;
         background: var(--accent);
-        color: #fff;
+        color: var(--color-white);
         border-radius: 5px;
         padding: 3px 9px;
         font-size: 12px;
@@ -336,7 +341,7 @@
       }
       .cite:hover {
         background: var(--accent);
-        color: #fff;
+        color: var(--color-white);
       }
 
       /* ── Explain button ── */
@@ -362,14 +367,16 @@
         color: var(--text);
       }
       button.explain:disabled {
-        opacity: 0.45;
+        background: var(--disabled-fill);
+  color: var(--disabled-ink);
+  cursor: not-allowed;
         cursor: default;
       }
 
       /* ── Weak note ── */
       .weak-note {
-        background: #f59e0b0c;
-        border: 1px solid #f59e0b22;
+        background: var(--color-orange-400-a05);
+        border: 1px solid var(--color-orange-400-a13);
         border-radius: var(--radius);
         padding: 10px 14px;
         margin-bottom: 10px;
@@ -431,7 +438,7 @@
         border: 1px solid var(--border);
         border-radius: 6px;
         padding: 8px 12px;
-        font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+        font-family: var(--font-mono);
         font-size: 12px;
         color: var(--text);
         margin-top: 6px;
@@ -451,7 +458,7 @@
       }
       #playerBox {
         aspect-ratio: 16/9;
-        background: #000;
+        background: var(--color-black);
       }
       #playerBox iframe {
         width: 100%;
@@ -509,7 +516,7 @@
         content: "";
         position: absolute;
         inset: 0;
-        background: linear-gradient(90deg, transparent, #ffffff06, transparent);
+        background: linear-gradient(90deg, transparent, var(--color-white-a02), transparent);
         animation: sweep 1.4s infinite;
       }
       @keyframes sweep {
@@ -536,7 +543,60 @@
         color: var(--text-faint);
         font-size: 12px;
       }
-    </style>
+
+/* Accessibility states added by the polish pass. */
+:root {
+  --focus-ring: #e2e8f0;
+  --disabled-fill: #2a2f3a;
+  --disabled-ink: #8b93a1;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  overflow-x: clip;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible + label {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  background: var(--disabled-fill);
+  color: var(--disabled-ink);
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
   </head>
   <body>
     <header>
@@ -575,7 +635,7 @@
       <section>
         <form id="askForm">
           <div class="search-wrap">
-            <svg
+            <svg aria-hidden="true"
               class="search-icon"
               width="16"
               height="16"
@@ -588,7 +648,7 @@
               <circle cx="11" cy="11" r="7" />
               <path d="M20 20l-3.5-3.5" />
             </svg>
-            <input
+            <input aria-label="Ask anything covered in the videos…"
               id="q"
               type="text"
               maxlength="500"
@@ -607,7 +667,7 @@
 
         <div id="explainWrap" hidden>
           <button class="explain" id="explainBtn" type="button">
-            <svg
+            <svg aria-hidden="true"
               width="14"
               height="14"
               viewBox="0 0 24 24"
@@ -627,7 +687,7 @@
         <!-- Setup instructions shown when index is empty -->
         <div id="setupCard" class="setup-card" hidden>
           <h3>
-            <svg
+            <svg aria-hidden="true"
               width="15"
               height="15"
               viewBox="0 0 24 24"
@@ -700,7 +760,7 @@
           <div id="playerBox">
             <div class="placeholder">
               <div class="placeholder-icon">
-                <svg
+                <svg aria-hidden="true"
                   width="18"
                   height="18"
                   viewBox="0 0 24 24"
@@ -955,7 +1015,7 @@
         $("explainWrap").hidden = false;
         $("explainBtn").disabled = false;
         $("explainBtn").innerHTML =
-          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8v4l3 3"/></svg> Generate AI summary';
+          '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8v4l3 3"/></svg> Generate AI summary';
       }
 
       // ---------- AI summary ----------
@@ -964,7 +1024,7 @@
           answerEl = $("answer");
         btn.disabled = true;
         btn.innerHTML =
-          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8v4l3 3"/></svg> Generating…';
+          '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8v4l3 3"/></svg> Generating…';
         answerEl.hidden = false;
         answerEl.className = "answer idle shimmer";
         answerEl.innerHTML =
