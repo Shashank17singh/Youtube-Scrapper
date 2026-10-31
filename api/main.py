@@ -4,8 +4,6 @@ RAG interface.
 """
 
 import logging
-import time
-from collections import defaultdict, deque
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -19,6 +17,7 @@ from ytrag import config
 from ytrag.answer import answer as answer_question
 from ytrag.answer import search_only
 from ytrag.index import stats as index_stats
+from ytrag.rate_limit import RateLimiter
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
@@ -43,24 +42,23 @@ class AskRequest(BaseModel):
     top_k: int = Field(default=config.TOP_K, ge=1, le=20)
 
 
-_HITS: dict[str, deque] = defaultdict(deque)
+_limiter = RateLimiter(
+    config.RATE_LIMIT_REQUESTS,
+    config.RATE_LIMIT_OVERALL,
+    config.RATE_LIMIT_WINDOW_SECONDS,
+)
 
 
 def _rate_limit(request: Request) -> None:
-    client = request.client.host if request.client else "unknown"
-    now = time.monotonic()
-    window = _HITS[client]
+    forwarded = request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+    client = forwarded or (request.client.host if request.client else "unknown")
 
-    while window and now - window[0] > config.RATE_LIMIT_WINDOW_SECONDS:
-        window.popleft()
-
-    if len(window) >= config.RATE_LIMIT_REQUESTS:
+    if not _limiter.allow(client):
         raise HTTPException(
             status_code=429,
             detail=f"Slow down - max {config.RATE_LIMIT_REQUESTS} questions per "
             f"{config.RATE_LIMIT_WINDOW_SECONDS}s.",
         )
-    window.append(now)
 
 
 @app.get("/health")

@@ -67,3 +67,4 @@ REFUSAL = "Ye topic in lectures me cover nahi hua."
 MAX_QUESTION_CHARS = int(os.getenv("YTRAG_MAX_QUESTION_CHARS", 500))  # noqa: PLW1508
 RATE_LIMIT_REQUESTS = int(os.getenv("YTRAG_RATE_LIMIT_REQUESTS", 20))  # noqa: PLW1508
 RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("YTRAG_RATE_LIMIT_WINDOW", 60))  # noqa: PLW1508
+RATE_LIMIT_OVERALL = int(os.getenv("YTRAG_RATE_LIMIT_OVERALL", 40))  # noqa: PLW1508
