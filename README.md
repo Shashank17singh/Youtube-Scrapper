@@ -158,7 +158,7 @@ uv run ytrag ingest --playlist "<PLAYLIST_URL>"
 
 ## Deployment
 
-This project is configured to run effortlessly on platforms like Render or Railway.
+This project runs on platforms like Render or Railway.
 
 - Connect your GitHub repository.
 - **Build Command:** `curl -LsSf https://astral.sh/uv/install.sh | sh && /opt/render/project/.cargo/bin/uv sync`
