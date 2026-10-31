@@ -7,3 +7,9 @@ __pycache__/
 *.txt
 !requirements.txt
 !robots.txt
+
+# Local AI assistant configuration
+.agents/
+
+# Editor settings
+.vscode/
