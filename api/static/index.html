@@ -6,7 +6,7 @@
 
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>YT Scrapper - Find the exact moment a topic is mentioned</title>
+    <title>YouTube Scrapper: find the exact moment a topic is mentioned</title>
     <meta
       name="description"
       content="Search any topic and jump to the exact second it was mentioned in indexed YouTube videos."
@@ -32,10 +32,10 @@
         --text: #e2e8f4;
         --text-dim: #9aa8ba;
         --text-faint: #8a99ac;
-        --accent: #3b82f6;
-  --accent-strong: #2563eb;
-        --accent-glow: #3b82f620;
-        --accent-dim: #3b82f614;
+        --accent: #14b8a6;
+  --accent-strong: #0f766e;
+        --accent-glow: #14b8a620;
+        --accent-dim: #14b8a614;
         --green: #22c55e;
         --amber: #f59e0b;
         --red: #ef4444;
@@ -279,7 +279,7 @@
       .result .at {
         grid-row: 1;
         background: var(--accent);
-        color: var(--color-white);
+        color: var(--bg);
         border-radius: 5px;
         padding: 3px 9px;
         font-size: 12px;
@@ -602,17 +602,15 @@ textarea:disabled {
     <header>
       <div class="header-inner">
         <div class="brand">
-          <span class="brand-dot"></span>
-          YT Scrapper
+          YouTube Scrapper
         </div>
         <h1>
           Find the exact second a topic is
-          <span>mentioned</span>
-          .
+          <span>mentioned</span>.
         </h1>
         <p class="tagline">
           Ask any question. Get timestamped answers sourced directly from
-          indexed YouTube videos - no hallucination.
+          indexed YouTube videos, with the clip that backs each one.
         </p>
         <div class="stats">
           <span class="stat-pill">

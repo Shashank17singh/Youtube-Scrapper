@@ -1,18 +1,6 @@
-<div align="center">
+# YouTube Scrapper
 
-# Youtube-Scrapper
-
-**Retrieval over a YouTube playlist. A student asks a question and gets an answer plus clickable links that jump to the exact second in the exact video.**
-
-[![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Groq](https://img.shields.io/badge/Groq-openai--gpt--oss--120b-F55036?style=for-the-badge&logoColor=white)](https://groq.com/)
-[![Qdrant](https://img.shields.io/badge/Qdrant-Vector%20Database-C52B9B?style=for-the-badge&logo=qdrant&logoColor=white)](https://qdrant.tech/)
-[![Whisper](https://img.shields.io/badge/Faster%20Whisper-Transcription-000000?style=for-the-badge&logo=openai&logoColor=white)](https://github.com/SYSTRAN/faster-whisper)
-[![Python](https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-
-</div>
-
----
+Retrieval over a YouTube playlist. A student asks a question and gets an answer plus clickable links that jump to the exact second in the exact video.
 
 ## Overview
 
